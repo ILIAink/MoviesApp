@@ -1,11 +1,13 @@
 ### Setting up `.env` file
 
 In the root directory, add a file with the name `.env`, as follows:
+```
 │── backend/
 │── frontend/
 │── .gitignore
 │── README.md
 │── .env
+```
 
 Populate the `.env` file as follows:
 
@@ -23,13 +25,13 @@ To find the values for `DB_USER`, `DB_PASS`, `DB_HOST` and `DB_NAME`, check the 
 
 To understand the folder structure, read the following in order:
 
-#### ./backend/controllers
+#### `./backend/controllers`
 
-#### ./backend/routes
+#### `./backend/routes`
 
-#### ./backend/server.js
+#### `./backend/server.js`
 
-#### ./backend/db
+#### `./backend/db`
 
 Has two files:
 
