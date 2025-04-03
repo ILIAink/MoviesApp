@@ -6,7 +6,7 @@ import {
 const getAllMovies = async (req, res) => {
   try {
     const movies = await fetchMovies();
-    res.json(movies);
+    res.status(200).json(movies);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
