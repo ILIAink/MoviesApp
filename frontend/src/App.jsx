@@ -2,18 +2,21 @@ import { useState, useEffect } from "react";
 import { getAllMovies } from "../api/endpoints"; // Import your function
 
 function App() {
-  const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState([]); // Keeps track of state, re-renders the website if there are changes
 
+  const fetchAndSetMovies = async () => {
+    try {
+      const data = await getAllMovies();
+      setMovies(data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
+
+  // Only calls the API once when the page/component mounts (loads)
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await getAllMovies(); // Fetch movies
-        setMovies(data);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      }
-    })();
-  }, []); // Runs only once when the component mounts
+    fetchAndSetMovies();
+  }, []);
 
   return (
     <div className="h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
