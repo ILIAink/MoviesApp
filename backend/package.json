@@ -6,5 +6,8 @@
     "nodemon": "^3.1.9",
     "pg": "^8.14.1"
   },
+  "scripts": {
+    "start":"nodemon server.js"
+  },
   "type": "module"
 }

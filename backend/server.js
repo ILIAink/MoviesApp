@@ -8,16 +8,16 @@ import express from "express";
 import { router as movieRouter } from "./routes/movieRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT || 5100;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Needed for frontend interactions
 
 // Routes
-app.use("/movies", movieRouter);
+app.use("/api/movies", movieRouter);
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
