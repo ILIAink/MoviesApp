@@ -42,9 +42,9 @@ const createShow = async (
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    // RETURNING * just gives us back the newly created movie to see if everything worked as expected
+    // RETURNING * just gives us back the newly created Show to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO show (Show_name, Season_count, Genre, Age_rating) VALUES ($1, $2, $3, $4) RETURNING *",
+        "INSERT INTO Show (Show_name, Season_count, Genre, Age_rating) VALUES ($1, $2, $3, $4) RETURNING *",
         [Show_name, Season_count, Genre, Age_rating]
     );
     await client.query("COMMIT");
@@ -56,6 +56,31 @@ const createShow = async (
     client.release();
   }
 };
+
+//Create a new season
+const createSeason = async (
+    Show_id,
+    Season_number,
+    Episode_count
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Season to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Season (Show_id, Season_number, Episode_count) VALUES ($1, $2, $3) RETURNING *",
+        [Show_id, Season_number, Episode_count]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 
 
 //Get a user's liked movies
@@ -83,4 +108,4 @@ const getLikedShow = async (
 
 
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason};
