@@ -81,6 +81,31 @@ const createSeason = async (
   }
 };
 
+//Create a episode
+const createEpisode = async (
+    Show_id,
+    Season_number,
+    Episode_number,
+    Episode_name,
+    Duration
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Season to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Episode (Show_id, Season_number, Episode_number, Episode_name, Duration) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [Show_id, Season_number, Episode_number, Episode_name, Duration]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
 
 //Get a user's liked movies
@@ -108,4 +133,4 @@ const getLikedShow = async (
 
 
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode};
