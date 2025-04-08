@@ -327,7 +327,7 @@ const getLikedShow = async (
   return result.rows;
 };
 
-
+//Get the seasons of a show
 const getShowSeason = async (
     show_id
 ) => {
@@ -335,6 +335,7 @@ const getShowSeason = async (
   return result.rows;
 };
 
+//Get the episodes of a season
 const getSeasonEpisodes = async (
     show_id,
     season_number
@@ -343,12 +344,14 @@ const getSeasonEpisodes = async (
   return result.rows;
 };
 
+//Get all episodes of a show
 const getShowEpisodes = async (
     show_id) => {
   const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1", [show_id]);
   return result.rows;
 };
 
+//Get all the services a User subscibes to
 
 const getUserServices = async (
     user_id
@@ -357,5 +360,37 @@ const getUserServices = async (
   return result.rows;
 };
 
+const getUserMovieDetails = async (
+    user_id
+) => {
+  const result = await pool.query("SELECT * FROM Movies JOIN Service_Movies WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+  return result.rows;
+};
+
+const getUserSeasonDetails = async (
+    user_id
+) => {
+  const result = await pool.query("SELECT * FROM Season JOIN Service_Seasons WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+  return result.rows;
+};
+
+const getUserShowDetails = async (user_id) => {
+  const result = await pool.query(
+      `
+    SELECT DISTINCT Show.Show_id, Show.Show_name, Show.Genre, Show.Age_Rating
+    FROM User_Service
+    JOIN Service_Seasons ON User_Service.Service_id = Service_Seasons.Service_id
+    JOIN Season ON Service_Seasons.Show_id = Season.Show_id AND Service_Seasons.Season_number = Season.Season_number
+    JOIN Show ON Season.Show_id = Show.Show_id
+    WHERE User_Service.User_id = $1
+    `,
+      [user_id]
+  );
+
+  return result.rows;
+};
+
+
+
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails};
