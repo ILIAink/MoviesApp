@@ -131,6 +131,25 @@ const getLikedShow = async (
   return result.rows;
 };
 
+const getAllShow = async () => {
+  const result = await pool.query("SELECT * FROM Show");
+  return result.rows;
+};
+
+const getShowSeason = async (
+    show_id
+) => {
+  const result = await pool.query("SELECT * FROM Season WHERE show_id = $1", [show_id]);
+  return result.rows;
+};
+
+const getSeasonEpisodes = async (
+    show_id,
+    season_number
+) => {
+  const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1 and season_number = $2", [show_id, season_number]);
+  return result.rows;
+};
 
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow};
