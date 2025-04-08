@@ -6,6 +6,15 @@ const getAllMovies = async () => {
   return result.rows;
 };
 
+//Fetch All shows
+const getAllShow = async () => {
+  const result = await pool.query("SELECT * FROM Show");
+  return result.rows;
+};
+
+
+
+
 // Insert a new movie with transactions
 const createMovie = async (
   movie_title,
@@ -107,6 +116,193 @@ const createEpisode = async (
   }
 };
 
+//Create a Service
+const createService = async (
+    Service_name,
+    Price_monthly,
+    Price_yearly
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Streaming_Services (Service_name, Price_monthly, Price_yearly) VALUES ($1, $2, $3) RETURNING *",
+        [Service_name, Price_monthly, Price_yearly]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+//User Subscribes to a platform
+const Subscribe_User = async (
+    User_id,
+    Service_id
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO User_Service (User_id, Service_id) VALUES ($1, $2) RETURNING *",
+        [User_id, Service_id]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+//User likes a movie
+const Like_movie = async (
+    User_id,
+    Movie_id,
+    Watched
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Likes_movie (User_id, Movie_id, Watched) VALUES ($1, $2, $3) RETURNING *",
+        [User_id, Movie_id, Watched]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+//User likes a movie
+const Like_Show = async (
+    User_id,
+    Show_id,
+    Watched
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Likes_show (User_id, Show_id, Watched) VALUES ($1, $2, $3) RETURNING *",
+        [User_id, Show_id, Watched]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+//User Service has a movie
+const Service_Has_Movie = async (
+    Service_id,
+    Movie_id,
+    Region,
+    Rent_price,
+    Buy_price,
+    Removal_Date
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Service_Movies (User_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [Service_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+//User Service has a movie
+const Service_Has_Season = async (
+    Service_id,
+    Show_id,
+    Region,
+    Rent_price,
+    Buy_price,
+    Removal_Date
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // RETURNING * just gives us back the newly created Services to see if everything worked as expected
+    const result = await client.query(
+        "INSERT INTO Service_Seasons (User_id, Show_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [Service_id, Show_id, Region, Rent_price, Buy_price, Removal_Date]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+// Create Bundle
+const Bundle_Services = async (
+    Service1,
+    Service2,
+    Service3 = null,
+    Service4 = null,
+    Service5 = null
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const result = await client.query(
+        "INSERT INTO Service_Bundle (Service1, Service2, Service3, Service4, Service5) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [Service1, Service2, Service3, Service4, Service5]
+    );
+
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Get a user's liked movies
 const getLikedMovies = async (
@@ -131,10 +327,6 @@ const getLikedShow = async (
   return result.rows;
 };
 
-const getAllShow = async () => {
-  const result = await pool.query("SELECT * FROM Show");
-  return result.rows;
-};
 
 const getShowSeason = async (
     show_id
@@ -166,4 +358,4 @@ const getUserServices = async (
 };
 
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie};
