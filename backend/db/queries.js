@@ -32,5 +32,15 @@ const createMovie = async (
   }
 };
 
+const getLikedMovies = async (
+    user_id
+) => {
+  const result = await pool.query(
+      "SELECT * FROM movie WHERE Movie_id IN (SELECT Movie_id FROM Likes_Movie WHERE Users_id = $1)",
+      [user_id]
+  );
+  return result.rows;
+};
+
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie };
+export { getAllMovies, createMovie, getLikedMovies};
