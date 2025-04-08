@@ -151,5 +151,19 @@ const getSeasonEpisodes = async (
   return result.rows;
 };
 
+const getShowEpisodes = async (
+    show_id) => {
+  const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1", [show_id]);
+  return result.rows;
+};
+
+
+const getUserServices = async (
+    user_id
+    ) => {
+  const result = await pool.query("SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+  return result.rows;
+};
+
 // Export functions for movies in ES Module syntax
 export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow};
