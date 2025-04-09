@@ -420,5 +420,80 @@ const searchUserShows = async (
   return result.rows;
 };
 
+
+//If this works I'll be jumping on rooftops
+const getBestBundle = async (user_id) => {
+  const result = await pool.query(`
+    WITH UserLikedUnownedMovies AS (
+        SELECT lm.Movie_id
+        FROM Likes_Movie lm
+        JOIN Movie m ON lm.Movie_id = m.Movie_id
+        WHERE lm.User_id = $1
+          AND lm.Watched = FALSE
+          AND lm.Movie_id NOT IN (
+              SELECT sm.Movie_id
+              FROM User_Service us
+              JOIN Service_Movies sm ON us.Service_id = sm.Service_id
+              WHERE us.User_id = $1
+          )
+    ),
+    UserLikedUnownedSeasons AS (
+        SELECT ls.Show_id, s.Season_number
+        FROM Likes_Show ls
+        JOIN Season s ON ls.Show_id = s.Show_id
+        WHERE ls.User_id = $1
+          AND ls.Watched = FALSE
+          AND (ls.Show_id, s.Season_number) NOT IN (
+              SELECT ss.Show_id, ss.Season_number
+              FROM User_Service us
+              JOIN Service_Seasons ss ON us.Service_id = ss.Service_id
+              WHERE us.User_id = $1
+          )
+    ),
+    BundleContent AS (
+        SELECT sb.Service1, sb.Service2, sb.Service3, sb.Service4, sb.Service5,
+               sm.Movie_id, NULL::INT AS Show_id, NULL::INT AS Season_number
+        FROM Service_Bundle sb
+        JOIN Service_Movies sm ON sm.Service_id IN (sb.Service1, sb.Service2, sb.Service3, sb.Service4, sb.Service5)
+
+        UNION
+
+        SELECT sb.Service1, sb.Service2, sb.Service3, sb.Service4, sb.Service5,
+               NULL::INT AS Movie_id, ss.Show_id, ss.Season_number
+        FROM Service_Bundle sb
+        JOIN Service_Seasons ss ON ss.Service_id IN (sb.Service1, sb.Service2, sb.Service3, sb.Service4, sb.Service5)
+    ),
+    RelevantBundles AS (
+        SELECT bc.Service1, bc.Service2, bc.Service3, bc.Service4, bc.Service5,
+               COUNT(DISTINCT bc.Movie_id) FILTER (
+                   WHERE bc.Movie_id IS NOT NULL AND bc.Movie_id IN (
+                       SELECT Movie_id FROM UserLikedUnownedMovies
+                   )
+               ) +
+               COUNT(DISTINCT bc.Show_id || '-' || bc.Season_number) FILTER (
+                   WHERE bc.Show_id IS NOT NULL AND (bc.Show_id, bc.Season_number) IN (
+                       SELECT Show_id, Season_number FROM UserLikedUnownedSeasons
+                   )
+               ) AS match_count
+        FROM BundleContent bc
+        GROUP BY bc.Service1, bc.Service2, bc.Service3, bc.Service4, bc.Service5
+    ),
+    BestBundles AS (
+        SELECT *
+        FROM RelevantBundles
+        WHERE match_count = (
+            SELECT MAX(match_count)
+            FROM RelevantBundles
+        )
+    )
+    SELECT *
+    FROM BestBundles
+    WHERE match_count > 0;
+  `, [user_id]);
+
+  return result.rows;
+};
+
+
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows, getBestBundle};
