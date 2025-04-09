@@ -390,7 +390,35 @@ const getUserShowDetails = async (user_id) => {
   return result.rows;
 };
 
+const searchAllMovies = async (
+    name
+) => {
+  const result = await pool.query("SELECT * FROM Movie WHERE Movie_id = $1 + '%'", [name]);
+  return result.rows;
+};
 
+const searchAllShows = async (
+    name
+) => {
+  const result = await pool.query("SELECT * FROM Show WHERE Show_name = $1 + '%'", [name]);
+  return result.rows;
+};
+
+const searchUserMovies = async (
+    name
+) => {
+  const x = getUserMovieDetails();
+  const result = await pool.query("SELECT * FROM Movie WHERE Movie_id = $1 + '%' AND IN $2", [name, x]);
+  return result.rows;
+};
+
+const searchUserShows = async (
+    name
+) => {
+  const x = getUserShowDetails();
+  const result = await pool.query("SELECT * FROM Show WHERE Show_id = $1 + '%' AND IN $2", [name, x]);
+  return result.rows;
+};
 
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows};
