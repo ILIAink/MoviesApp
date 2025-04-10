@@ -34,3 +34,22 @@ const createMovie = async (
 
 // Export functions for movies in ES Module syntax
 export { getAllMovies, createMovie };
+
+// Create new user with username, password, & age
+const registerUser = async (username, hashedPassword, age) => {
+  const result = await pool.query(
+    `INSERT INTO users (user_name, password, user_age)
+     VALUES ($1, $2, $3)
+     RETURNING user_id, user_name, user_age`,
+    [username, hashedPassword, age]
+  );
+  return result.rows[0];
+};
+
+// Find user by username
+const findUserByUsername = async (username) => {
+  const result = await pool.query(`SELECT * FROM users WHERE user_name = $1`, [username]);
+  return result.rows[0];
+};
+
+export { registerUser, findUserByUsername };
