@@ -12,8 +12,44 @@ const getAllShow = async () => {
   return result.rows;
 };
 
+// ---------
+// Users
+const createUser = async (user_name, password, user_age) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await client.query(
+      `
+      INSERT INTO Users (user_name, password, user_age)
+      VALUES ($1, $2, $3) RETURNING *`,
+      [user_name, password, user_age]
+    );
+    await client.query("COMMIT");
+    return result.rows[0];
+  } catch (error) {
+    console.log("Could not add user\n", error);
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
+const getUser = async (user_name) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM Users WHERE LOWER(user_name) = LOWER($1)",
+      [user_name]
+    );
 
+    return result.rows[0];
+  } catch (error) {
+    console.log("Could not get user\n", error);
+    throw error;
+  }
+};
+
+// ---------
 
 // Insert a new movie with transactions
 const createMovie = async (
@@ -42,19 +78,14 @@ const createMovie = async (
 };
 
 //Create a show
-const createShow = async (
-    Show_name,
-    Season_count,
-    Genre,
-    Age_rating
-) => {
+const createShow = async (Show_name, Season_count, Genre, Age_rating) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Show to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Show (Show_name, Season_count, Genre, Age_rating) VALUES ($1, $2, $3, $4) RETURNING *",
-        [Show_name, Season_count, Genre, Age_rating]
+      "INSERT INTO Show (Show_name, Season_count, Genre, Age_rating) VALUES ($1, $2, $3, $4) RETURNING *",
+      [Show_name, Season_count, Genre, Age_rating]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -67,18 +98,14 @@ const createShow = async (
 };
 
 //Create a new season
-const createSeason = async (
-    Show_id,
-    Season_number,
-    Episode_count
-) => {
+const createSeason = async (Show_id, Season_number, Episode_count) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Season to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Season (Show_id, Season_number, Episode_count) VALUES ($1, $2, $3) RETURNING *",
-        [Show_id, Season_number, Episode_count]
+      "INSERT INTO Season (Show_id, Season_number, Episode_count) VALUES ($1, $2, $3) RETURNING *",
+      [Show_id, Season_number, Episode_count]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -92,19 +119,19 @@ const createSeason = async (
 
 //Create a episode
 const createEpisode = async (
-    Show_id,
-    Season_number,
-    Episode_number,
-    Episode_name,
-    Duration
+  Show_id,
+  Season_number,
+  Episode_number,
+  Episode_name,
+  Duration
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Season to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Episode (Show_id, Season_number, Episode_number, Episode_name, Duration) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [Show_id, Season_number, Episode_number, Episode_name, Duration]
+      "INSERT INTO Episode (Show_id, Season_number, Episode_number, Episode_name, Duration) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [Show_id, Season_number, Episode_number, Episode_name, Duration]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -117,18 +144,14 @@ const createEpisode = async (
 };
 
 //Create a Service
-const createService = async (
-    Service_name,
-    Price_monthly,
-    Price_yearly
-) => {
+const createService = async (Service_name, Price_monthly, Price_yearly) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Streaming_Services (Service_name, Price_monthly, Price_yearly) VALUES ($1, $2, $3) RETURNING *",
-        [Service_name, Price_monthly, Price_yearly]
+      "INSERT INTO Streaming_Services (Service_name, Price_monthly, Price_yearly) VALUES ($1, $2, $3) RETURNING *",
+      [Service_name, Price_monthly, Price_yearly]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -141,17 +164,14 @@ const createService = async (
 };
 
 //User Subscribes to a platform
-const Subscribe_User = async (
-    User_id,
-    Service_id
-) => {
+const Subscribe_User = async (User_id, Service_id) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO User_Service (User_id, Service_id) VALUES ($1, $2) RETURNING *",
-        [User_id, Service_id]
+      "INSERT INTO User_Service (User_id, Service_id) VALUES ($1, $2) RETURNING *",
+      [User_id, Service_id]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -164,18 +184,14 @@ const Subscribe_User = async (
 };
 
 //User likes a movie
-const Like_movie = async (
-    User_id,
-    Movie_id,
-    Watched
-) => {
+const Like_movie = async (User_id, Movie_id, Watched) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Likes_movie (User_id, Movie_id, Watched) VALUES ($1, $2, $3) RETURNING *",
-        [User_id, Movie_id, Watched]
+      "INSERT INTO Likes_movie (User_id, Movie_id, Watched) VALUES ($1, $2, $3) RETURNING *",
+      [User_id, Movie_id, Watched]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -188,18 +204,14 @@ const Like_movie = async (
 };
 
 //User likes a movie
-const Like_Show = async (
-    User_id,
-    Show_id,
-    Watched
-) => {
+const Like_Show = async (User_id, Show_id, Watched) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Likes_show (User_id, Show_id, Watched) VALUES ($1, $2, $3) RETURNING *",
-        [User_id, Show_id, Watched]
+      "INSERT INTO Likes_show (User_id, Show_id, Watched) VALUES ($1, $2, $3) RETURNING *",
+      [User_id, Show_id, Watched]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -213,20 +225,20 @@ const Like_Show = async (
 
 //User Service has a movie
 const Service_Has_Movie = async (
-    Service_id,
-    Movie_id,
-    Region,
-    Rent_price,
-    Buy_price,
-    Removal_Date
+  Service_id,
+  Movie_id,
+  Region,
+  Rent_price,
+  Buy_price,
+  Removal_Date
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Service_Movies (User_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [Service_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date]
+      "INSERT INTO Service_Movies (User_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [Service_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -240,20 +252,20 @@ const Service_Has_Movie = async (
 
 //User Service has a movie
 const Service_Has_Season = async (
-    Service_id,
-    Show_id,
-    Region,
-    Rent_price,
-    Buy_price,
-    Removal_Date
+  Service_id,
+  Show_id,
+  Region,
+  Rent_price,
+  Buy_price,
+  Removal_Date
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-        "INSERT INTO Service_Seasons (User_id, Show_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [Service_id, Show_id, Region, Rent_price, Buy_price, Removal_Date]
+      "INSERT INTO Service_Seasons (User_id, Show_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [Service_id, Show_id, Region, Rent_price, Buy_price, Removal_Date]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -267,19 +279,19 @@ const Service_Has_Season = async (
 
 // Create Bundle
 const Bundle_Services = async (
-    Service1,
-    Service2,
-    Service3 = null,
-    Service4 = null,
-    Service5 = null
+  Service1,
+  Service2,
+  Service3 = null,
+  Service4 = null,
+  Service5 = null
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
 
     const result = await client.query(
-        "INSERT INTO Service_Bundle (Service1, Service2, Service3, Service4, Service5) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [Service1, Service2, Service3, Service4, Service5]
+      "INSERT INTO Service_Bundle (Service1, Service2, Service3, Service4, Service5) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [Service1, Service2, Service3, Service4, Service5]
     );
 
     await client.query("COMMIT");
@@ -292,91 +304,78 @@ const Bundle_Services = async (
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
 //Get a user's liked movies
-const getLikedMovies = async (
-    user_id
-) => {
+const getLikedMovies = async (user_id) => {
   const result = await pool.query(
-      "SELECT * FROM Movie WHERE Movie_id IN (SELECT Movie_id FROM Likes_Movie WHERE Users_id = $1)",
-      [user_id]
+    "SELECT * FROM Movie WHERE Movie_id IN (SELECT Movie_id FROM Likes_Movie WHERE Users_id = $1)",
+    [user_id]
   );
   return result.rows;
 };
 
-
 //get a users liked shows
-const getLikedShow = async (
-    user_id
-) => {
+const getLikedShow = async (user_id) => {
   const result = await pool.query(
-      "SELECT * FROM Show WHERE Show_id IN (SELECT Show_id FROM Likes_Show WHERE Users_id = $1)",
-      [user_id]
+    "SELECT * FROM Show WHERE Show_id IN (SELECT Show_id FROM Likes_Show WHERE Users_id = $1)",
+    [user_id]
   );
   return result.rows;
 };
 
 //Get the seasons of a show
-const getShowSeason = async (
-    show_id
-) => {
-  const result = await pool.query("SELECT * FROM Season WHERE show_id = $1", [show_id]);
+const getShowSeason = async (show_id) => {
+  const result = await pool.query("SELECT * FROM Season WHERE show_id = $1", [
+    show_id,
+  ]);
   return result.rows;
 };
 
 //Get the episodes of a season
-const getSeasonEpisodes = async (
-    show_id,
-    season_number
-) => {
-  const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1 and season_number = $2", [show_id, season_number]);
+const getSeasonEpisodes = async (show_id, season_number) => {
+  const result = await pool.query(
+    "SELECT * FROM Episode WHERE show_id = $1 and season_number = $2",
+    [show_id, season_number]
+  );
   return result.rows;
 };
 
 //Get all episodes of a show
-const getShowEpisodes = async (
-    show_id) => {
-  const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1", [show_id]);
+const getShowEpisodes = async (show_id) => {
+  const result = await pool.query("SELECT * FROM Episode WHERE show_id = $1", [
+    show_id,
+  ]);
   return result.rows;
 };
 
 //Get all the services a User subscibes to
 
-const getUserServices = async (
-    user_id
-    ) => {
-  const result = await pool.query("SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+const getUserServices = async (user_id) => {
+  const result = await pool.query(
+    "SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)",
+    [user_id]
+  );
   return result.rows;
 };
 
-const getUserMovieDetails = async (
-    user_id
-) => {
-  const result = await pool.query("SELECT * FROM Movies JOIN Service_Movies WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+const getUserMovieDetails = async (user_id) => {
+  const result = await pool.query(
+    "SELECT * FROM Movies JOIN Service_Movies WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)",
+    [user_id]
+  );
   return result.rows;
 };
 
-const getUserSeasonDetails = async (
-    user_id
-) => {
-  const result = await pool.query("SELECT * FROM Season JOIN Service_Seasons WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)", [user_id]);
+const getUserSeasonDetails = async (user_id) => {
+  const result = await pool.query(
+    "SELECT * FROM Season JOIN Service_Seasons WHERE Service_id IN (SELECT * FROM Streaming_Services WHERE Service_id IN (SELECT Service_id FROM User_Service WHERE User_id = $1)",
+    [user_id]
+  );
   return result.rows;
 };
 
 const getUserShowDetails = async (user_id) => {
   const result = await pool.query(
-      `
+    `
     SELECT DISTINCT Show.Show_id, Show.Show_name, Show.Genre, Show.Age_Rating
     FROM User_Service
     JOIN Service_Seasons ON User_Service.Service_id = Service_Seasons.Service_id
@@ -384,46 +383,50 @@ const getUserShowDetails = async (user_id) => {
     JOIN Show ON Season.Show_id = Show.Show_id
     WHERE User_Service.User_id = $1
     `,
-      [user_id]
+    [user_id]
   );
 
   return result.rows;
 };
 
-const searchAllMovies = async (
-    name
-) => {
-  const result = await pool.query("SELECT * FROM Movie WHERE Movie_id = $1 + '%'", [name]);
+const searchAllMovies = async (name) => {
+  const result = await pool.query(
+    "SELECT * FROM Movie WHERE Movie_id = $1 + '%'",
+    [name]
+  );
   return result.rows;
 };
 
-const searchAllShows = async (
-    name
-) => {
-  const result = await pool.query("SELECT * FROM Show WHERE Show_name = $1 + '%'", [name]);
+const searchAllShows = async (name) => {
+  const result = await pool.query(
+    "SELECT * FROM Show WHERE Show_name = $1 + '%'",
+    [name]
+  );
   return result.rows;
 };
 
-const searchUserMovies = async (
-    name
-) => {
+const searchUserMovies = async (name) => {
   const x = getUserMovieDetails();
-  const result = await pool.query("SELECT * FROM Movie WHERE Movie_id = $1 + '%' AND IN $2", [name, x]);
+  const result = await pool.query(
+    "SELECT * FROM Movie WHERE Movie_id = $1 + '%' AND IN $2",
+    [name, x]
+  );
   return result.rows;
 };
 
-const searchUserShows = async (
-    name
-) => {
+const searchUserShows = async (name) => {
   const x = getUserShowDetails();
-  const result = await pool.query("SELECT * FROM Show WHERE Show_id = $1 + '%' AND IN $2", [name, x]);
+  const result = await pool.query(
+    "SELECT * FROM Show WHERE Show_id = $1 + '%' AND IN $2",
+    [name, x]
+  );
   return result.rows;
 };
-
 
 //If this works I'll be jumping on rooftops
 const getBestBundle = async (user_id) => {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     WITH UserLikedUnownedMovies AS (
         SELECT lm.Movie_id
         FROM Likes_Movie lm
@@ -489,11 +492,42 @@ const getBestBundle = async (user_id) => {
     SELECT *
     FROM BestBundles
     WHERE match_count > 0;
-  `, [user_id]);
+  `,
+    [user_id]
+  );
 
   return result.rows;
 };
 
-
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows, getBestBundle};
+export {
+  getAllMovies,
+  createMovie,
+  getLikedMovies,
+  getLikedShow,
+  createShow,
+  createSeason,
+  createEpisode,
+  getAllShow,
+  getShowSeason,
+  getSeasonEpisodes,
+  getShowEpisodes,
+  getUserServices,
+  createService,
+  Subscribe_User,
+  Like_movie,
+  Like_Show,
+  Bundle_Services,
+  Service_Has_Season,
+  Service_Has_Movie,
+  getUserShowDetails,
+  getUserSeasonDetails,
+  getUserMovieDetails,
+  searchAllMovies,
+  searchAllShows,
+  searchUserMovies,
+  searchUserShows,
+  getBestBundle,
+  createUser,
+  getUser,
+};
