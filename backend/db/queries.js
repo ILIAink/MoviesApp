@@ -32,8 +32,17 @@ const createMovie = async (
   }
 };
 
+// Find a movie by title (case-insensitive)
+const findMovieByTitle = async (movie_title) => {
+  const result = await pool.query(
+    "SELECT * FROM movie WHERE LOWER(movie_title) = LOWER($1)",
+    [movie_title]
+  );
+  return result.rows[0]; // returns undefined if not found
+};
+
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie };
+export { getAllMovies, createMovie, findMovieByTitle };
 
 // Create new user with username, password, & age
 // const registerUser = async (username, hashedPassword, age) => {
