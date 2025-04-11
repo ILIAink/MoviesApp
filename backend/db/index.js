@@ -14,4 +14,7 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-export { pool };
+// Export Watchmode API key
+const WATCHMODE_API_KEY = process.env.WATCHMODE_API_KEY;
+
+export { pool, WATCHMODE_API_KEY };
