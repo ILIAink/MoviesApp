@@ -6,11 +6,11 @@ const getUser = async (user_name) => {
   await fetchMoviesApp("/user", "POST", { user_name });
 };
 
-const createUser = async (user_name, password, user_age) => {
-  return await fetchMoviesApp("/user/create", "POST", {
-    user_name,
+const createUser = async (username, password, age) => {
+  return await fetchMoviesApp("/user/register", "POST", {
+    username,
     password,
-    user_age,
+    age,
   });
 };
 

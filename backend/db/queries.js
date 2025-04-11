@@ -90,13 +90,11 @@ const registerUser = async (username, hashedPassword, age) => {
 
 // Find user by username
 const findUserByUsername = async (username) => {
-  const result = await pool.query(`SELECT * FROM users WHERE user_name = $1`, [username]);
+  const result = await pool.query(`SELECT * FROM users WHERE user_name = $1`, [
+    username,
+  ]);
   return result.rows[0];
 };
-
-
-
-
 
 //Create a show
 const createShow = async (Show_name, Season_count, Genre, Age_rating) => {
@@ -522,7 +520,6 @@ const getBestBundle = async (user_id) => {
 
 // Export functions for movies in ES Module syntax
 export {
-  getAllMovies,
   createMovie,
   getLikedMovies,
   getLikedShow,
@@ -549,9 +546,7 @@ export {
   searchUserMovies,
   searchUserShows,
   getBestBundle,
-  getAllMovies, 
-  createMovie, 
-  registerUser, 
-  findUserByUsername
+  getAllMovies,
+  registerUser,
+  findUserByUsername,
 };
-
