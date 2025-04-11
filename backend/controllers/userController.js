@@ -22,7 +22,7 @@ const register = async (req, res) => {
     // Register new user
     const user = await registerUser(username, hashedPassword, age);
 
-    res.status(201).json({ user });
+    res.status(201).json( user );
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
