@@ -11,8 +11,24 @@ const fetchMoviesApp = async (endpoint, method = "GET", data = null) => {
     const response = await axios(options);
     return response.data;
   } catch (error) {
-    console.error("Error fetching:", error);
-    throw error; // Rethrow the error for better handling
+    if (error.response) {
+      // Server responded with a status other than 2xx
+      console.error(
+        "Error Response:",
+        error.response.data,
+        "Status:",
+        error.response.status,
+        "Headers:",
+        error.response.headers
+      );
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("No Response:", error.request);
+    } else {
+      // Something else happened
+      console.error("Error Message:", error.message);
+    }
+    throw error;
   }
 };
 
