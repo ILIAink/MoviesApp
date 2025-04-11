@@ -5,4 +5,4 @@ const router = express.Router();
 
 router.get("/searchTitle", fetchAndStoreTitle); // expects ?query=title, e.g. /watchmode/searchTitle?query=inception
 
-export { router as watchmodeRouter };
+export { router };
