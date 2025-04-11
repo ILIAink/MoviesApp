@@ -1,5 +1,7 @@
+// handles fetching from Watchmode API, parsing, and saving into DB
+
 import { searchTitles, getTitleSources } from "../services/watchmode.js";
-import { findMovieByTitle } from "../db/queries.js";
+import { findMovieByTitle, createMovie } from "../db/queries.js";
 import { parseWatchmode} from "../utils/parseWatchmode.js"; // helper to convert Watchmode format to DB schema
 
 const fetchAndStoreTitle = async (req, res) => {
