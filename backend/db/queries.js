@@ -327,7 +327,7 @@ const Bundle_Services = async (
 //Get a user's liked movies
 const getLikedMovies = async (user_id) => {
   const result = await pool.query(
-    "SELECT * FROM Movie WHERE Movie_id IN (SELECT Movie_id FROM Likes_Movie WHERE Users_id = $1)",
+    "SELECT * FROM Movie WHERE Movie_id IN (SELECT Movie_id FROM Likes_Movie WHERE User_id = $1)",
     [user_id]
   );
   return result.rows;
