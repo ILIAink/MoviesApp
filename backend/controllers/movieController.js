@@ -1,6 +1,7 @@
 import {
   getAllMovies as fetchMovies,
   createMovie as addMovie,
+
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -13,9 +14,10 @@ const getAllMovies = async (req, res) => {
 };
 
 const createMovie = async (req, res) => {
-  const { movie_title, duration, release_date, genre, age_rating } = req.body;
+  const { movie_id, movie_title, duration, release_date, genre, age_rating } = req.body;
   try {
     const newMovie = await addMovie(
+      movie_id,
       movie_title,
       duration,
       release_date,
