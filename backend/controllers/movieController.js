@@ -26,6 +26,7 @@ const createMovie = async (req, res) => {
       genre,
       age_rating
     );
+
     res.status(201).json(newMovie);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -33,29 +34,49 @@ const createMovie = async (req, res) => {
 };
 
 const addMovieToLikes = async (req, res) => {
-  const { user_id, movie_id, watched } = req.body;
-  // try adding a movie to likes_movie table... if error (movie_id not in movies table) add it to movies table and then try again
+  const {
+    user_id,
+    movie_id,
+    watched,
+    movie_title,
+    duration,
+    release_date,
+    genre,
+    age_rating,
+  } = req.body;
+
   try {
+    // Try adding the like first
     const result = await addLike(user_id, movie_id, watched);
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (error) {
-    // im assuming the error is due to the movie_id not being in the movies table, not the user_id lol
-    const { movie_title, duration, release_date, genre, age_rating } = req.body;
-    const movie = await addMovie(
-      movie_id,
-      movie_title,
-      duration,
-      release_date,
-      genre,
-      age_rating
-    );
-    // now trying again...
-    console.log(movie);
+    if (error.code === "23505") {
+      // Unique constraint violation — already liked
+      return res
+        .status(400)
+        .json({ error: "You have already added this to your list..." });
+    }
+
     try {
+      // Assume error because movie doesn't exist yet, so add movie first
+      await addMovie(
+        movie_id,
+        movie_title,
+        duration,
+        release_date,
+        genre,
+        age_rating
+      );
+
+      // After adding the movie, try adding the like again
       const result = await addLike(user_id, movie_id, watched);
-      res.status(201).json(result);
-    } catch (error) {
-      res.status(500).json({ error: error.message }); // idk if this is the best error code cause idk what error could happen atp
+      return res.status(201).json(result);
+    } catch (innerError) {
+      // If adding the movie or liking it again fails
+      console.error(innerError);
+      return res
+        .status(500)
+        .json({ error: "An unexpected error occurred. Please try again." });
     }
   }
 };

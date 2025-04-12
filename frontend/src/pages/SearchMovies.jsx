@@ -40,16 +40,22 @@ const SearchMovies = () => {
   }, [query]);
 
   const handleAddToList = async (movie) => {
-    console.log("Adding to list:", movie);
     try {
-      const likedMovie = await addMovieToList(
+      const movieDetails = await searchTitleDetails(movie.id);
+      await addMovieToList(
         user.user_id,
-        movie.id,
-        movie.name
+        movieDetails.id,
+        movieDetails.original_title,
+        true,
+        movieDetails.runtime_minutes,
+        movieDetails.release_date,
+        movieDetails.genre_names[0],
+        "PG-13"
       );
       toast.success("Movie added to liked list!");
     } catch (error) {
-      toast.error("Could not add movie to liked list...");
+      const message = error.response?.data?.error || "Adding movie failed";
+      toast.error(message);
     }
   };
 
