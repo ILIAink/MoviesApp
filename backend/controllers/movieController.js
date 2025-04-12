@@ -15,7 +15,8 @@ const getAllMovies = async (req, res) => {
 };
 
 const createMovie = async (req, res) => {
-  const { movie_id, movie_title, duration, release_date, genre, age_rating } = req.body;
+  const { movie_id, movie_title, duration, release_date, genre, age_rating } =
+    req.body;
   try {
     const newMovie = await addMovie(
       movie_id,
@@ -31,7 +32,7 @@ const createMovie = async (req, res) => {
   }
 };
 
-const addMovieToLikes = async (req,res) => {
+const addMovieToLikes = async (req, res) => {
   const { user_id, movie_id, watched } = req.body;
   // try adding a movie to likes_movie table... if error (movie_id not in movies table) add it to movies table and then try again
   try {
@@ -40,7 +41,7 @@ const addMovieToLikes = async (req,res) => {
   } catch (error) {
     // im assuming the error is due to the movie_id not being in the movies table, not the user_id lol
     const { movie_title, duration, release_date, genre, age_rating } = req.body;
-    await addMovie(
+    const movie = await addMovie(
       movie_id,
       movie_title,
       duration,
@@ -49,6 +50,7 @@ const addMovieToLikes = async (req,res) => {
       age_rating
     );
     // now trying again...
+    console.log(movie);
     try {
       const result = await addLike(user_id, movie_id, watched);
       res.status(201).json(result);
@@ -56,7 +58,7 @@ const addMovieToLikes = async (req,res) => {
       res.status(500).json({ error: error.message }); // idk if this is the best error code cause idk what error could happen atp
     }
   }
-}
+};
 
 const getUserMovieLikes = async (req, res) => {
   const { user_id } = req.body;
@@ -66,5 +68,5 @@ const getUserMovieLikes = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 export { getAllMovies, createMovie, addMovieToLikes, getUserMovieLikes };

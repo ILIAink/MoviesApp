@@ -1,9 +1,12 @@
-import { Link } from "react-router";
-import { Menu, X } from "lucide-react"; // Icons for the mobile menu toggle
-import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { Menu, X } from "lucide-react";
+import { useContext, useState } from "react";
+import { GlobalContext } from "../GlobalContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useContext(GlobalContext);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -21,23 +24,45 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-indigo-600">
-              Home
-            </Link>
-            <Link
-              to="/register"
-              className="text-gray-700 hover:text-indigo-600"
-            >
-              Register
-            </Link>
-            <Link to="/login" className="text-gray-700 hover:text-indigo-600">
-              Login
-            </Link>
+          <div className="hidden md:flex space-x-4 items-center">
+            {user ? (
+              <>
+                <span className="text-gray-700">Hi, {user.user_name}!</span>
+                <button
+                  onClick={() => {
+                    navigate("/likedMovies");
+                  }}
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-purple-500 text-white hover:bg-purple-600"
+                >
+                  Liked movies
+                </button>
+                <button
+                  onClick={logout}
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-red-500 text-white hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/register"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Register
+                </Link>
+                <Link
+                  to="/login"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Mobile Button */}
-          <div className="md:hidden flex items-center text-black">
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
             <button onClick={toggleMenu}>
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -49,27 +74,34 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link
-              to="/"
-              onClick={toggleMenu}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600"
-            >
-              Home
-            </Link>
-            <Link
-              to="/register"
-              onClick={toggleMenu}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600"
-            >
-              Register
-            </Link>
-            <Link
-              to="/login"
-              onClick={toggleMenu}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600"
-            >
-              Login
-            </Link>
+            {user ? (
+              <>
+                <span className="block px-3 py-2 text-gray-700">
+                  Hi, {user.username}!
+                </span>
+                <button
+                  onClick={logout}
+                  className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium bg-red-500 text-white hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/register"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Register
+                </Link>
+                <Link
+                  to="/login"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
