@@ -495,5 +495,147 @@ const getBestBundle = async (user_id) => {
 };
 
 
+const searchShowByColumn = async (
+    Column_name,
+    search
+) => {
+  const result = await pool.query("SELECT * FROM Show JOIN Season JOIN Service_Seasons JOIN Streaming_Services WHERE $1 = $2", [Column_name, search]);
+  return result.rows;
+};
+
+const searchShowByTwoColumn = async (
+    Column_name1,
+    Column_name2,
+    search1,
+    search2
+) => {
+  const result = await pool.query("SELECT * FROM Show JOIN Season JOIN Service_Seasons JOIN Streaming_Services WHERE $1 = $2 AND $3 = $4", [Column_name1, search1, Column_name2, search2]);
+  return result.rows;
+};
+
+const searchShowByThreeColumn = async (
+    Column_name1,
+    Column_name2,
+    Column_name3,
+    search1,
+    search2,
+    search3
+) => {
+  const result = await pool.query("SELECT * FROM Show JOIN Season JOIN Service_Seasons JOIN Streaming_Services WHERE $1 = $2 AND $3 = $4 AND $5 = $6", [Column_name1, search1, Column_name2, search2, Column_name3, search3]);
+  return result.rows;
+};
+
+const searchMovieByColumn = async (
+    Column_name,
+    search
+) => {
+  const result = await pool.query("SELECT * FROM Movie JOIN Service_Movies JOIN Streaming_Services WHERE $1 = $2", [Column_name, search]);
+  return result.rows;
+};
+
+const searchMovieByTwoColumn = async (
+    Column_name1,
+    Column_name2,
+    search1,
+    search2
+) => {
+  const result = await pool.query("SELECT * FROM Movie JOIN Service_Movies JOIN Streaming_Services WHERE $1 = $2 AND $3 = $4", [Column_name1, search1, Column_name2, search2]);
+  return result.rows;
+};
+
+const searchMovieByThreeColumn = async (
+    Column_name1,
+    Column_name2,
+    Column_name3,
+    search1,
+    search2,
+    search3
+) => {
+  const result = await pool.query("SELECT * FROM Movie JOIN Service_Movies JOIN Streaming_Services WHERE $1 = $2 AND $3 = $4 AND $5 = $6", [Column_name1, search1, Column_name2, search2, Column_name3, search3]);
+  return result.rows;
+};
+
+const SelectRandShowFromGivenList = async (
+    list
+) => {
+  const result = await pool.query("SELECT * FROM Show WHERE IN $1 ORDER BY RANDOM() LIMIT 1", [list]);
+  return result.rows;
+};
+
+const SelectRandMovieFromGivenList = async (
+    list
+) => {
+  const result = await pool.query("SELECT * FROM Movie WHERE IN $1 ORDER BY RANDOM() LIMIT 1", [list]);
+  return result.rows;
+};
+
+const GetPriceOfSeason = async (
+    ShowName,
+    Season_num
+) => {
+  const result = await pool.query("SELECT Show_name, Rent_price, Buy_price FROM Show JOIN Season JOIN Service_Seasons WHERE Show_name = $1 AND Season_number = $2", [Show_name, Season_num]);
+  return result.rows;
+};
+
+const GetPriceOfMovie = async (
+    Movie_name
+) => {
+  const result = await pool.query("SELECT Movie_title, Rent_price, Buy_price FROM Movie JOIN Service_Movies WHERE Movie_title = $1", [Movie_name]);
+  return result.rows;
+};
+
+
+
+const GetLeavingAlert = async (user_id) => {
+  const result = await pool.query(`
+    SELECT 'Movie' AS Type, m.Movie_title AS Title, sm.Removal_Date
+    FROM User_Service us
+           JOIN Service_Movies sm ON us.Service_id = sm.Service_id
+           JOIN Movie m ON sm.Movie_id = m.Movie_id
+    WHERE us.User_id = :user_id
+      AND sm.Removal_Date IS NOT NULL
+      AND sm.Removal_Date <= CURRENT_DATE + INTERVAL '1 month'
+
+    UNION
+
+    SELECT 'Show' AS Type, s.Show_name AS Title, ss.Removal_Date
+    FROM User_Service us
+           JOIN Service_Seasons ss ON us.Service_id = ss.Service_id
+           JOIN Show s ON ss.Show_id = s.Show_id
+    WHERE us.User_id = :user_id
+      AND ss.Removal_Date IS NOT NULL
+      AND ss.Removal_Date <= CURRENT_DATE + INTERVAL '1 month';
+  `, [user_id]);
+
+  return result.rows;
+};
+
+const GetLikedLeavingAlert = async (user_id) => {
+  const result = await pool.query(`
+    SELECT 'Movie' AS Type, m.Movie_title AS Title, sm.Removal_Date
+    FROM Likes_Movie lm
+           JOIN User_Service us ON lm.User_id = us.User_id
+           JOIN Service_Movies sm ON lm.Movie_id = sm.Movie_id AND us.Service_id = sm.Service_id
+           JOIN Movie m ON lm.Movie_id = m.Movie_id
+    WHERE lm.User_id = :user_id
+      AND sm.Removal_Date IS NOT NULL
+      AND sm.Removal_Date <= CURRENT_DATE + INTERVAL '1 month'
+
+    UNION
+
+    SELECT 'Show' AS Type, s.Show_name AS Title, ss.Removal_Date
+    FROM Likes_Show ls
+           JOIN User_Service us ON ls.User_id = us.User_id
+           JOIN Service_Seasons ss ON ls.Show_id = ss.Show_id AND us.Service_id = ss.Service_id
+           JOIN Show s ON ls.Show_id = s.Show_id
+    WHERE ls.User_id = :user_id
+      AND ss.Removal_Date IS NOT NULL
+      AND ss.Removal_Date <= CURRENT_DATE + INTERVAL '1 month';
+  `, [user_id]);
+
+  return result.rows;
+};
+
+
 // Export functions for movies in ES Module syntax
-export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows, getBestBundle};
+export { getAllMovies, createMovie, getLikedMovies, getLikedShow, createShow, createSeason, createEpisode, getAllShow, getShowSeason, getSeasonEpisodes, getShowEpisodes, getUserServices, createService, Subscribe_User, Like_movie, Like_Show, Bundle_Services, Service_Has_Season, Service_Has_Movie, getUserShowDetails, getUserSeasonDetails, getUserMovieDetails, searchAllMovies, searchAllShows, searchUserMovies, searchUserShows, getBestBundle, searchShowByColumn, searchShowByTwoColumn, searchShowByThreeColumn, searchMovieByColumn, searchMovieByTwoColumn, searchMovieByThreeColumn, GetLikedLeavingAlert, GetPriceOfMovie, GetLeavingAlert, GetPriceOfSeason, SelectRandMovieFromGivenList, SelectRandShowFromGivenList};
