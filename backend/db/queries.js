@@ -258,15 +258,15 @@ const Service_Has_Movie = async (
   Region,
   Rent_price,
   Buy_price,
-  Removal_Date
+  web_url
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-      "INSERT INTO Service_Movies (Service_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [Service_id, Movie_id, Region, Rent_price, Buy_price, Removal_Date]
+      "INSERT INTO Service_Movies (Service_id, Movie_id, Region, Rent_price, Buy_price, web_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [Service_id, Movie_id, Region, Rent_price, Buy_price, web_url]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -285,15 +285,15 @@ const Service_Has_Season = async (
   Region,
   Rent_price,
   Buy_price,
-  Removal_Date
+  web_url
 ) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     // RETURNING * just gives us back the newly created Services to see if everything worked as expected
     const result = await client.query(
-      "INSERT INTO Service_Seasons (Service, Show_id, Region, Rent_price, Buy_price, Removal_Date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [Service_id, Show_id, Region, Rent_price, Buy_price, Removal_Date]
+      "INSERT INTO Service_Seasons (Service_id, Show_id, Region, Rent_price, Buy_price, web_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [Service_id, Show_id, Region, Rent_price, Buy_price, web_url]
     );
     await client.query("COMMIT");
     return result.rows[0];
@@ -400,7 +400,7 @@ const getUserSeasonDetails = async (user_id) => {
   );
   return result.rows;
 };
-
+//TODO: service_seasons no longer has season_number
 const getUserShowDetails = async (user_id) => {
   const result = await pool.query(
     `
@@ -550,6 +550,10 @@ const getSourcesForShow = async (show_id) => {
   return result.rows;
 }
 
+const getServicebyID = async (service_id) => {
+  const result = await pool.query("SELECT * FROM Streaming_Services WHERE Service_id = $1", [service_id]);
+  return result.rows[0];
+}
 const searchShowByColumn = async (
     Column_name,
     search
@@ -640,7 +644,7 @@ const GetPriceOfMovie = async (
 };
 
 
-
+//TODO removal_date was dropped, web_url was added
 const GetLeavingAlert = async (user_id) => {
   const result = await pool.query(`
     SELECT 'Movie' AS Type, m.Movie_title AS Title, sm.Removal_Date
@@ -737,6 +741,7 @@ export {
   SelectRandShowFromGivenList,
   getShowbyID,
   getMoviebyID,
+  getServicebyID,
   getSourcesForMovie,
   getSourcesForShow,
 };
