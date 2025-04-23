@@ -53,6 +53,13 @@ const listTitlesByGenre = async (genre) => {
   });
 };
 
+const doesTitleExist = async (title_id, type) => {
+  return await fetchMoviesApp("/movies/getTitle", "POST", {
+    title_id,
+    type,
+  });
+};
+
 const addTitleToList = async (
   user_id,
   title_id,
@@ -97,4 +104,5 @@ export {
   getAllSources,
   searchTitleSources,
   searchTitleDetailsWithSources,
+  doesTitleExist,
 };

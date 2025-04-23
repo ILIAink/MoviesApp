@@ -6,6 +6,7 @@ import {
   addTitleToList,
   searchTitle,
   searchTitleDetailsWithSources,
+  doesTitleExist,
 } from "../../api/endpoints";
 
 const SearchMovies = () => {
@@ -47,6 +48,9 @@ const SearchMovies = () => {
   const handleAddToList = async (title) => {
     try {
       const details = await searchTitleDetailsWithSources(title.id);
+      console.log(title.id, title.type);
+      const titleExists = await doesTitleExist(title.id, title.type);
+      console.log(titleExists);
       await addTitleToList(
         user.user_id,
         title.id,
