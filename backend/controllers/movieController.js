@@ -113,10 +113,11 @@ const addToLikes = async (req, res) => {
   } = req.body;
   try {
     // Try adding the like first
+    let result;
     if (type.toLowerCase() === "movie") {
-      const result = await addMovieLike(user_id, title_id, watched);
+      result = await addMovieLike(user_id, title_id, watched);
     } else {
-      const result = await addShowLike(user_id, title_id, watched);
+      result = await addShowLike(user_id, title_id, watched);
     }
     return res.status(201).json(result);
   } catch (error) {
@@ -129,6 +130,7 @@ const addToLikes = async (req, res) => {
     try {
       // Assume error because doesnt exist in db, so try to add first
       // then try to add like again
+      let result;
       if (type.toLowerCase() === "Movie") {
         await addMovie(
           title_id,
@@ -137,7 +139,7 @@ const addToLikes = async (req, res) => {
           release_date,
           genre
         );
-        const result = await addMovieLike(user_id, title_id, watched);
+        result = await addMovieLike(user_id, title_id, watched);
       } else {
         await addShow(
           title_id,
@@ -145,7 +147,7 @@ const addToLikes = async (req, res) => {
           season_count,
           genre
         );
-        const result = await addShowLike(user_id, title_id, watched);
+        result = await addShowLike(user_id, title_id, watched);
       }
       return res.status(201).json(result);
     } catch (innerError) {
