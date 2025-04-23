@@ -34,7 +34,7 @@ const Navbar = () => {
                   }}
                   className="px-3 py-2 rounded-md text-sm font-medium bg-purple-500 text-white hover:bg-purple-600"
                 >
-                  Liked movies
+                  Added Titles
                 </button>
                 <button
                   onClick={logout}
