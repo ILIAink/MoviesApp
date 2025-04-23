@@ -96,6 +96,7 @@ const addToLikes = async (req, res) => {
     season_count,
     duration,
     release_date,
+    sources,
   } = req.body;
 
   if (!user_id || !title_id || !type) {

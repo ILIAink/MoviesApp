@@ -62,7 +62,8 @@ const addTitleToList = async (
   genre = "Kids",
   season_count,
   duration = 90,
-  release_date = "2011-10-16"
+  release_date = "2011-10-16",
+  sources = []
 ) => {
   return await fetchMoviesApp("/movies/addLike", "POST", {
     user_id,
@@ -74,6 +75,7 @@ const addTitleToList = async (
     season_count,
     duration,
     release_date,
+    sources,
   });
 };
 

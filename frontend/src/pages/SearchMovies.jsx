@@ -41,23 +41,24 @@ const SearchMovies = () => {
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
-  const handleAddToList = async (movie) => {
+  const handleAddToList = async (title) => {
     try {
-      const movieDetails = await searchTitleDetailsWithSources(movie.id);
-      // console.log(movieDetails);
-      const title = await addTitleToList(
+      const titleDetails = await searchTitleDetailsWithSources(title.id);
+      console.log(titleDetails);
+      const addedTitle = await addTitleToList(
         user.user_id,
-        movieDetails.id,
-        movieDetails.type,
+        title.id,
+        titleDetails.type,
         true,
-        movieDetails.original_title,
-        movieDetails.genre_names[0],
-        movieDetails?.sources[0]?.seasons || 0,
-        movieDetails.runtime_minutes || 0,
-        movieDetails.release_date
+        titleDetails.title,
+        titleDetails.genre_names[0],
+        titleDetails?.sources[0]?.seasons || 0,
+        titleDetails.runtime_minutes || 0,
+        titleDetails.release_date,
+        titleDetails?.sources || []
       );
 
-      console.log(title);
+      console.log(addedTitle);
       toast.success("Title added to liked list!");
     } catch (error) {
       const message = error.response?.data?.error || "Adding title failed";
@@ -77,25 +78,25 @@ const SearchMovies = () => {
         />
 
         <div className="grid gap-6">
-          {results.map((movie) => (
+          {results.map((title) => (
             <div
-              key={movie.id}
+              key={title.id}
               className="flex bg-white rounded-xl shadow-md overflow-hidden"
             >
-              {movie.image_url && (
+              {title.image_url && (
                 <img
-                  src={movie.image_url}
-                  alt={movie.name}
+                  src={title.image_url}
+                  alt={title.name}
                   className="w-24 h-36 object-cover"
                 />
               )}
               <div className="flex flex-col justify-between p-4 flex-1">
                 <div>
-                  <h2 className="text-lg font-semibold">{movie.name}</h2>
-                  <p className="text-gray-500 text-sm">{movie.year}</p>
+                  <h2 className="text-lg font-semibold">{title.name}</h2>
+                  <p className="text-gray-500 text-sm">{title.year}</p>
                 </div>
                 <button
-                  onClick={() => handleAddToList(movie)}
+                  onClick={() => handleAddToList(title)}
                   className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
                 >
                   Add to My List
