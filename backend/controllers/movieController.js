@@ -137,11 +137,18 @@ const addToLikes = async (req, res) => {
 
       await addTitle();
 
-
       // for each source, check if in Streaming_Services, if not add.
       for (const source of sources) {
         const { source_id, name, type, price, region, web_url } = source;
-        console.log("Adding source:", source_id, name, type, price, region, web_url);
+        console.log(
+          "Adding source:",
+          source_id,
+          name,
+          type,
+          price,
+          region,
+          web_url
+        );
         try {
           const service = await getService(source_id);
           if (!service) {
@@ -163,15 +170,28 @@ const addToLikes = async (req, res) => {
           let rent_price = isRent ? price : 0;
           let buy_price = isRent ? 0 : price;
 
-          const addTitleToService = 
+          const addTitleToService =
             normalizedType === "movie"
-              ? await addMovieToService(source_id, title_id, region, rent_price, buy_price, web_url)
-              : await addShowToService(source_id, title_id, region, rent_price, buy_price, web_url);
+              ? await addMovieToService(
+                  source_id,
+                  title_id,
+                  region,
+                  rent_price,
+                  buy_price,
+                  web_url
+                )
+              : await addShowToService(
+                  source_id,
+                  title_id,
+                  region,
+                  rent_price,
+                  buy_price,
+                  web_url
+                );
           console.log("Added title to service:", addTitleToService);
         } catch (serviceError) {
           console.error("Error adding service to title", serviceError);
         }
-
       }
 
       const result =
@@ -232,33 +252,30 @@ const getRandShowFromList = async (req, res) => {
   }
 };
 
-const getTitle = async(req, res) => {
-  const { 
-    title_id,
-    type,
-   } = req.body;
+const getTitle = async (req, res) => {
+  const { title_id, type } = req.body;
 
   if (!title_id || !type) {
-      return res.status(400).json({ error: "Missing required fields." });
-   }
+    return res.status(400).json({ error: "Missing required fields." });
+  }
 
   const normalizedType = type.toLowerCase();
 
   try {
-    const title = 
+    const title =
       normalizedType === "movie"
         ? await getMovie(title_id)
         : await getShow(title_id);
     // Check if no title was found
     if (!title) {
-      return null;
+      return res.status(200).json({ title: null });
     }
     const sources =
       normalizedType === "movie"
         ? await getSourcesForMovie(title_id)
         : await getSourcesForShow(title_id);
 
-    const transformedSources = sources.map(source => {
+    const transformedSources = sources.map((source) => {
       const isRent = source.buy_price === null;
       return {
         name: source.name,
@@ -266,7 +283,7 @@ const getTitle = async(req, res) => {
         price: isRent ? source.rent_price : source.buy_price,
         region: source.region,
         web_url: source.web_url,
-        ...(normalizedType !== "movie" && { seasons: source.seasons })
+        ...(normalizedType !== "movie" && { seasons: source.seasons }),
       };
     });
     if (normalizedType === "movie") {
@@ -284,13 +301,12 @@ const getTitle = async(req, res) => {
         title: title.show_name,
         genre_names: [title.genre],
         sources: transformedSources,
-      })
+      });
     }
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 export {
   getAllMovies,

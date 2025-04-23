@@ -48,12 +48,19 @@ const SearchMovies = () => {
   const handleAddToList = async (title) => {
     try {
       const details = await searchTitleDetailsWithSources(title.id);
-      console.log(title.id, title.type);
-      const titleExists = await doesTitleExist(title.id, title.type);
-      console.log(titleExists);
+      // console.log(details);
+      const exists = await doesTitleExist(title.id, title.type);
+      if (!exists.title) {
+        console.log("doesn't exist");
+        return;
+      } else {
+        console.log("exists");
+        console.log(exists);
+        return;
+      }
       await addTitleToList(
         user.user_id,
-        title.id,
+        details.id,
         details.type,
         true,
         details.title,
