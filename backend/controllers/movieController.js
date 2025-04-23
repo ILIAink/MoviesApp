@@ -10,6 +10,10 @@ import {
   createService as addService,
   createShow as addShow,
   createEpisode as addEpisode,
+  getShowbyID as getShow,
+  getMoviebyID as getMovie,
+  getSourcesForMovie,
+  getSourcesForShow,
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -188,6 +192,66 @@ const getRandShowFromList = async (req, res) => {
   }
 };
 
+const getTitle = async(req, res) => {
+  const { 
+    title_id,
+    type,
+   } = req.body;
+
+  if (!title_id || !type) {
+      return res.status(400).json({ error: "Missing required fields." });
+   }
+
+  const normalizedType = type.toLowerCase();
+
+  try {
+    const title = 
+      normalizedType === "movie"
+        ? await getMovie(title_id)
+        : await getShow(title_id);
+    // Check if no title was found
+    if (!title) {
+      return res.status(404).json({ error: "Title not found." });
+    }
+    const sources =
+      normalizedType === "movie"
+        ? await getSourcesForMovie(title_id)
+        : await getSourcesForShow(title_id);
+
+    const transformedSources = sources.map(source => {
+      const isRent = source.buy_price === null;
+      return {
+        name: source.name,
+        type: isRent ? "rent" : "buy",
+        price: isRent ? source.rent_price : source.buy_price,
+        region: source.region,
+        web_url: source.web_url,
+        ...(normalizedType !== "movie" && { seasons: source.seasons })
+      };
+    });
+    if (normalizedType === "movie") {
+      res.status(200).json({
+        type: normalizedType,
+        title: title.movie_title,
+        genre_names: [title.genre],
+        runtime_minutes: title.duration,
+        release_date: title.release_date,
+        sources: sources,
+      });
+    } else {
+      res.status(200).json({
+        type: normalizedType,
+        title: title.show_name,
+        genre_names: [title.genre],
+        sources: transformedSources,
+      })
+    }
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export {
   getAllMovies,
   createMovie,
@@ -199,4 +263,5 @@ export {
   getUserServices,
   getRandMovieFromList,
   getRandShowFromList,
+  getTitle,
 };
