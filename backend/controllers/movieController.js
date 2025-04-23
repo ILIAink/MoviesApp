@@ -211,7 +211,7 @@ const getTitle = async(req, res) => {
         : await getShow(title_id);
     // Check if no title was found
     if (!title) {
-      return res.status(404).json({ error: "Title not found." });
+      return null;
     }
     const sources =
       normalizedType === "movie"
