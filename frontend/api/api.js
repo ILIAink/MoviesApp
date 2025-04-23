@@ -2,7 +2,7 @@ import axios from "axios";
 
 const WATCHMODE_API_KEY = import.meta.env.VITE_WATCHMODE_API;
 
-const fetchMoviesApp = async (endpoint, method = "GET", data = null) => {
+const fetchMoviesApp = async (endpoint, method = "POST", data = null) => {
   try {
     const options = {
       method,

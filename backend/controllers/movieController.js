@@ -3,6 +3,14 @@ import {
   createMovie as addMovie,
   Like_movie as addLike,
   getLikedMovies as fetchLikedMovies,
+  getUserServices as fetchUserServices,
+  SelectRandMovieFromGivenList as fetchRandomMovie,
+  SelectRandShowFromGivenList as fetchRandomShow,
+  createService as addService,
+  createShow as addShow,
+  createEpisode as addEpisode,
+  Service_Has_Movie as addServiceMovie,
+  Service_Has_Show as addServiceShow,
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -15,7 +23,7 @@ const getAllMovies = async (req, res) => {
 };
 
 const createMovie = async (req, res) => {
-  const { movie_id, movie_title, duration, release_date, genre, age_rating } =
+  const { movie_id, movie_title, duration, release_date, genre } =
     req.body;
   try {
     const newMovie = await addMovie(
@@ -23,8 +31,7 @@ const createMovie = async (req, res) => {
       movie_title,
       duration,
       release_date,
-      genre,
-      age_rating
+      genre
     );
 
     res.status(201).json(newMovie);
@@ -32,6 +39,66 @@ const createMovie = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const createShow = async (req, res) => {
+  const { show_id, show_name, season_count, genre } 
+    = req.body;
+  try {
+    const newShow = await addShow(
+      show_id, 
+      show_name, 
+      season_count, 
+      genre
+    );
+
+    res.status(201).json(newShow);
+  } catch (error){
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const createEpisode = async (req, res) => {
+  const { 
+    show_id,
+    season_number,
+    episode_number,
+    episode_name,
+    duration,
+  } = req.body;
+  try {
+    const newEpisode = await addEpisode(
+      show_id,
+      season_number,
+      episode_number,
+      episode_name,
+      duration
+    );
+    res.status(201).json(newEpisode);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const createService = async (req, res) => {
+  const {
+    service_id, //this is source_id in watchmode
+    service_name,
+  }
+  = req.body;
+  try {
+    const newService = await addService(
+      service_id,
+      service_name,
+      0, //watchmode doesnt give price info for sources, just rent buy price for sources for a title i think
+      0
+    );
+
+    res.status(201).json(newService);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 const addMovieToLikes = async (req, res) => {
   const {
@@ -42,7 +109,6 @@ const addMovieToLikes = async (req, res) => {
     duration,
     release_date,
     genre,
-    age_rating,
   } = req.body;
 
   try {
@@ -64,8 +130,7 @@ const addMovieToLikes = async (req, res) => {
         movie_title,
         duration,
         release_date,
-        genre,
-        age_rating
+        genre
       );
 
       // After adding the movie, try adding the like again
@@ -90,4 +155,49 @@ const getUserMovieLikes = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-export { getAllMovies, createMovie, addMovieToLikes, getUserMovieLikes };
+
+const getUserServices = async (req, res) => {
+  const { user_id } = req.body;
+  try {
+    const services = await fetchUserServices(user_id);
+    res.status(200).json(services);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// jimmy's query uses some a given list to select some random movie
+// i think the list would come from the v/list-titles endpoint filtered by a
+// genre the user has selected? as described in the feature list
+const getRandMovieFromList = async (req, res) => {
+  const { list } = req.body;
+  try {
+    const randomMovie = await fetchRandomMovie(list);
+    res.status(200).json(randomMovie);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+const getRandShowFromList = async (req, res) => {
+  const { list } = req.body;
+  try {
+    const randomShow = await fetchRandomShow(list);
+    res.status(200).json(randomShow);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export { 
+  getAllMovies, 
+  createMovie, 
+  createShow,
+  createEpisode,
+  createService,
+  addMovieToLikes, 
+  getUserMovieLikes, 
+  getUserServices,
+  getRandMovieFromList,
+  getRandShowFromList
+};

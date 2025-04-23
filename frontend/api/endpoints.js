@@ -21,13 +21,39 @@ const loginUser = async (username, password) => {
 const searchTitle = async (title) => {
   return await fetchWatchMode("/autocomplete-search/", {
     search_value: title,
-    search_type: 3, // 3 = search for titles (movies ONLY)
+    search_type: 3, // 3 = search for titles (movies ONLY)  change to 2 for titles or make new function for shows?
   });
 };
 
 const searchTitleDetails = async (title_id) => {
   return await fetchWatchMode(`/title/${title_id}/details/`);
 };
+
+// USES MORE CREDITS
+const searchTitleDetailsWithSources = async (title_id) => {
+  return await fetchWatchMode(`/title/${title_id}/details/`, {
+    append_to_response: "sources",
+  });
+};
+
+//search for a Title's sources. optionally, filter by region. if region not specified, all regions from endpoint will be used. 
+const searchTitleSources = async (
+  title_id, 
+  region = undefined // optional
+) => {
+  return await fetchWatchMode(`/title/${title_id}/sources/`, {
+    ...(region && { regions: region }),
+  });
+};
+
+const listTitlesByGenre = async (
+  genre,
+) => {
+  return await fetchWatchMode(`/list-titles/`, {
+    genres: genre,
+    sort_by: "popularity_desc"
+  });
+}; 
 
 const addMovieToList = async (
   user_id,
@@ -37,7 +63,6 @@ const addMovieToList = async (
   duration = 90,
   release_date = "2011-10-16",
   genre = "Kids",
-  age_rating = "PG-13"
 ) => {
   return await fetchMoviesApp("/movies/likeMovie", "POST", {
     user_id,
@@ -47,7 +72,6 @@ const addMovieToList = async (
     duration,
     release_date,
     genre,
-    age_rating,
   });
 };
 
@@ -55,12 +79,18 @@ const getLikedMovies = async (user_id) => {
   return await fetchMoviesApp("/movies/getmovielikes", "POST", { user_id });
 };
 
+const getAllSources = async () => await fetchWatchMode(`/v1/sources/`);
+
 export {
   searchTitleDetails,
   getAllMovies,
   loginUser,
   createUser,
   searchTitle,
+  listTitlesByGenre,
   addMovieToList,
   getLikedMovies,
+  getAllSources,
+  searchTitleSources,
+  searchTitleDetailsWithSources,
 };

@@ -58,7 +58,6 @@ const LikedMovies = () => {
                 Release Date: {movie.release_date}
               </p>
               <p className="text-gray-600">Genre: {movie.genre}</p>
-              <p className="text-gray-600">Age Rating: {movie.age_rating}</p>
             </div>
           ))}
         </div>

@@ -6,6 +6,8 @@ import {
   addMovieToList,
   searchTitle,
   searchTitleDetails,
+  searchTitleSources,
+  searchTitleDetailsWithSources,
 } from "../../api/endpoints";
 
 const SearchMovies = () => {
@@ -49,8 +51,7 @@ const SearchMovies = () => {
         true,
         movieDetails.runtime_minutes,
         movieDetails.release_date,
-        movieDetails.genre_names[0],
-        "PG-13"
+        movieDetails.genre_names[0]
       );
       toast.success("Movie added to liked list!");
     } catch (error) {
