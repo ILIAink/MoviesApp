@@ -114,6 +114,7 @@ const addToLikes = async (req, res) => {
 
   try {
     // Attempt to add the like directly
+    console.log("Attempting to add to likes:", { user_id, title_id, type, watched });
     const result =
       normalizedType === "movie"
         ? await addMovieLike(user_id, title_id, watched)
@@ -130,6 +131,7 @@ const addToLikes = async (req, res) => {
 
     // Handle case where the title doesn't exist in the database
     try {
+      console.log("Adding title:", {  title_id, title_name, type });
       const addTitle =
         normalizedType === "movie"
           ? () => addMovie(title_id, title_name, duration, release_date, genre)
@@ -259,7 +261,7 @@ const getTitle = async(req, res) => {
         : await getSourcesForShow(title_id);
 
     const transformedSources = sources.map(source => {
-      const isRent = source.buy_price === null;
+      const isRent = source.rent_price !== 0;
       return {
         name: source.name,
         type: isRent ? "rent" : "buy",
