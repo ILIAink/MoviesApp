@@ -12,8 +12,11 @@ import {
   createEpisode as addEpisode,
   getShowbyID as getShow,
   getMoviebyID as getMovie,
+  getServicebyID as getService,
   getSourcesForMovie,
   getSourcesForShow,
+  Service_Has_Movie as addMovieToService,
+  Service_Has_Season as addShowToService,
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -133,6 +136,43 @@ const addToLikes = async (req, res) => {
           : () => addShow(title_id, title_name, season_count, genre);
 
       await addTitle();
+
+
+      // for each source, check if in Streaming_Services, if not add.
+      for (const source of sources) {
+        const { source_id, name, type, price, region, web_url } = source;
+        console.log("Adding source:", source_id, name, type, price, region, web_url);
+        try {
+          const service = await getService(source_id);
+          if (!service) {
+            // If the service doesn't exist, create it
+            const addedService = await addService(source_id, name, 0, 0);
+            console.log("Added service:", addedService);
+          }
+        } catch (serviceError) {
+          console.error("Error adding service:", serviceError);
+          return res
+            .status(500)
+            .json({ error: "An unexpected error occurred. Please try again." });
+        }
+
+        // add to service_movies or service_seasons
+
+        try {
+          const isRent = type === "rent";
+          let rent_price = isRent ? price : 0;
+          let buy_price = isRent ? 0 : price;
+
+          const addTitleToService = 
+            normalizedType === "movie"
+              ? await addMovieToService(source_id, title_id, region, rent_price, buy_price, web_url)
+              : await addShowToService(source_id, title_id, region, rent_price, buy_price, web_url);
+          console.log("Added title to service:", addTitleToService);
+        } catch (serviceError) {
+          console.error("Error adding service to title", serviceError);
+        }
+
+      }
 
       const result =
         normalizedType === "movie"
