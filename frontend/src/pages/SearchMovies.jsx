@@ -43,21 +43,24 @@ const SearchMovies = () => {
 
   const handleAddToList = async (movie) => {
     try {
-      const movieDetails = await searchTitleDetails(movie.id);
-      console.log(await searchTitleDetailsWithSources(movie.id));
+      const movieDetails = await searchTitleDetailsWithSources(movie.id);
       // console.log(movieDetails);
-      await addMovieToList(
+      const title = await addTitleToList(
         user.user_id,
         movieDetails.id,
-        movieDetails.original_title,
+        movieDetails.type,
         true,
-        movieDetails.runtime_minutes,
-        movieDetails.release_date,
-        movieDetails.genre_names[0]
+        movieDetails.original_title,
+        movieDetails.genre_names[0],
+        movieDetails?.sources[0]?.seasons || 0,
+        movieDetails.runtime_minutes || 0,
+        movieDetails.release_date
       );
-      toast.success("Movie added to liked list!");
+
+      console.log(title);
+      toast.success("Title added to liked list!");
     } catch (error) {
-      const message = error.response?.data?.error || "Adding movie failed";
+      const message = error.response?.data?.error || "Adding title failed";
       toast.error(message);
     }
   };

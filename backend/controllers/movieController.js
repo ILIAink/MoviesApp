@@ -85,61 +85,58 @@ const createService = async (req, res) => {
   }
 };
 
-
 const addToLikes = async (req, res) => {
   const {
     user_id,
     title_id,
     type,
-    watched, 
-    title_name, // this and below are required if not in db
+    watched,
+    title_name,
     genre,
     season_count,
     duration,
     release_date,
   } = req.body;
+
+  if (!user_id || !title_id || !type) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
+
+  const normalizedType = type.toLowerCase();
+
   try {
-    // Try adding the like first
-    let result;
-    if (type.toLowerCase() === "movie") {
-      result = await addMovieLike(user_id, title_id, watched);
-    } else {
-      result = await addShowLike(user_id, title_id, watched);
-    }
+    // Attempt to add the like directly
+    const result =
+      normalizedType === "movie"
+        ? await addMovieLike(user_id, title_id, watched)
+        : await addShowLike(user_id, title_id, watched);
+
     return res.status(201).json(result);
   } catch (error) {
     if (error.code === "23505") {
       // Unique constraint violation — already liked
       return res
         .status(400)
-        .json({ error: "You have already added this to your list..." });
+        .json({ error: "You have already added this to your list." });
     }
+
+    // Handle case where the title doesn't exist in the database
     try {
-      // Assume error because doesnt exist in db, so try to add first
-      // then try to add like again
-      let result;
-      if (type.toLowerCase() === "Movie") {
-        await addMovie(
-          title_id,
-          title_name,
-          duration,
-          release_date,
-          genre
-        );
-        result = await addMovieLike(user_id, title_id, watched);
-      } else {
-        await addShow(
-          title_id,
-          title_name,
-          season_count,
-          genre
-        );
-        result = await addShowLike(user_id, title_id, watched);
-      }
+      const addTitle =
+        normalizedType === "movie"
+          ? () => addMovie(title_id, title_name, duration, release_date, genre)
+          : () => addShow(title_id, title_name, season_count, genre);
+
+      await addTitle();
+
+      const result =
+        normalizedType === "movie"
+          ? await addMovieLike(user_id, title_id, watched)
+          : await addShowLike(user_id, title_id, watched);
+
       return res.status(201).json(result);
     } catch (innerError) {
-      // If adding the movie or liking it again fails
-      console.error(innerError);
+      console.error("Error adding title or like:", innerError);
       return res
         .status(500)
         .json({ error: "An unexpected error occurred. Please try again." });
@@ -196,8 +193,8 @@ export {
   createShow,
   createEpisode,
   createService,
-  addToLikes, 
-  getUserMovieLikes, 
+  addToLikes,
+  getUserMovieLikes,
   getUserServices,
   getRandMovieFromList,
   getRandShowFromList,

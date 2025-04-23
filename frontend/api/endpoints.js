@@ -21,7 +21,7 @@ const loginUser = async (username, password) => {
 const searchTitle = async (title) => {
   return await fetchWatchMode("/autocomplete-search/", {
     search_value: title,
-    search_type: 3, // 3 = search for titles (movies ONLY)  change to 2 for titles or make new function for shows?
+    search_type: 2, // 3 = search for titles (movies ONLY)  change to 2 for titles or make new function for shows?
   });
 };
 
@@ -36,9 +36,9 @@ const searchTitleDetailsWithSources = async (title_id) => {
   });
 };
 
-//search for a Title's sources. optionally, filter by region. if region not specified, all regions from endpoint will be used. 
+//search for a Title's sources. optionally, filter by region. if region not specified, all regions from endpoint will be used.
 const searchTitleSources = async (
-  title_id, 
+  title_id,
   region = undefined // optional
 ) => {
   return await fetchWatchMode(`/title/${title_id}/sources/`, {
@@ -46,14 +46,12 @@ const searchTitleSources = async (
   });
 };
 
-const listTitlesByGenre = async (
-  genre,
-) => {
+const listTitlesByGenre = async (genre) => {
   return await fetchWatchMode(`/list-titles/`, {
     genres: genre,
-    sort_by: "popularity_desc"
+    sort_by: "popularity_desc",
   });
-}; 
+};
 
 const addTitleToList = async (
   user_id,
@@ -64,7 +62,7 @@ const addTitleToList = async (
   genre = "Kids",
   season_count,
   duration = 90,
-  release_date = "2011-10-16",
+  release_date = "2011-10-16"
 ) => {
   return await fetchMoviesApp("/movies/addLike", "POST", {
     user_id,
@@ -75,7 +73,7 @@ const addTitleToList = async (
     genre,
     season_count,
     duration,
-    release_date
+    release_date,
   });
 };
 
