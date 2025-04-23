@@ -1,7 +1,8 @@
 import {
   getAllMovies as fetchMovies,
   createMovie as addMovie,
-  Like_movie as addLike,
+  Like_movie as addMovieLike,
+  Like_Show as addShowLike,
   getLikedMovies as fetchLikedMovies,
   getUserServices as fetchUserServices,
   SelectRandMovieFromGivenList as fetchRandomMovie,
@@ -9,8 +10,6 @@ import {
   createService as addService,
   createShow as addShow,
   createEpisode as addEpisode,
-  Service_Has_Movie as addServiceMovie,
-  Service_Has_Show as addServiceShow,
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -100,20 +99,25 @@ const createService = async (req, res) => {
 };
 
 
-const addMovieToLikes = async (req, res) => {
+const addToLikes = async (req, res) => {
   const {
     user_id,
-    movie_id,
-    watched,
-    movie_title,
+    title_id,
+    type,
+    watched, 
+    title_name, // this and below are required if not in db
+    genre,
+    season_count,
     duration,
     release_date,
-    genre,
   } = req.body;
-
   try {
     // Try adding the like first
-    const result = await addLike(user_id, movie_id, watched);
+    if (type.toLowerCase() === "movie") {
+      const result = await addMovieLike(user_id, title_id, watched);
+    } else {
+      const result = await addShowLike(user_id, title_id, watched);
+    }
     return res.status(201).json(result);
   } catch (error) {
     if (error.code === "23505") {
@@ -122,19 +126,27 @@ const addMovieToLikes = async (req, res) => {
         .status(400)
         .json({ error: "You have already added this to your list..." });
     }
-
     try {
-      // Assume error because movie doesn't exist yet, so add movie first
-      await addMovie(
-        movie_id,
-        movie_title,
-        duration,
-        release_date,
-        genre
-      );
-
-      // After adding the movie, try adding the like again
-      const result = await addLike(user_id, movie_id, watched);
+      // Assume error because doesnt exist in db, so try to add first
+      // then try to add like again
+      if (type.toLowerCase() === "Movie") {
+        await addMovie(
+          title_id,
+          title_name,
+          duration,
+          release_date,
+          genre
+        );
+        const result = await addMovieLike(user_id, title_id, watched);
+      } else {
+        await addShow(
+          title_id,
+          title_name,
+          season_count,
+          genre
+        );
+        const result = await addShowLike(user_id, title_id, watched);
+      }
       return res.status(201).json(result);
     } catch (innerError) {
       // If adding the movie or liking it again fails
@@ -195,7 +207,7 @@ export {
   createShow,
   createEpisode,
   createService,
-  addMovieToLikes, 
+  addToLikes, 
   getUserMovieLikes, 
   getUserServices,
   getRandMovieFromList,

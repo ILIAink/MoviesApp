@@ -5,7 +5,7 @@ import {
     createShow,
     createEpisode,
     createService,
-    addMovieToLikes, 
+    addToLikes, 
     getUserMovieLikes, 
     getUserServices,
     getRandMovieFromList,
@@ -19,7 +19,7 @@ router.post("/createMovie", createMovie);
 router.post("/createShow", createShow);
 router.post("/createEpisode", createEpisode);
 router.post("/createService", createService);
-router.post("/likeMovie", addMovieToLikes);
+router.post("/addLike", addToLikes);
 router.post("/getMovieLikes", getUserMovieLikes);
 router.post("/getUserServices", getUserServices);
 router.post("/getRandMovieFromList", getRandMovieFromList);

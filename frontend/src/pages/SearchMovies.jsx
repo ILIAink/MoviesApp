@@ -3,7 +3,7 @@ import { GlobalContext } from "../GlobalContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import {
-  addMovieToList,
+  addTitleToList,
   searchTitle,
   searchTitleDetails,
   searchTitleSources,
@@ -44,7 +44,7 @@ const SearchMovies = () => {
   const handleAddToList = async (movie) => {
     try {
       const movieDetails = await searchTitleDetails(movie.id);
-      await addMovieToList(
+      await addTitleToList( 
         user.user_id,
         movieDetails.id,
         movieDetails.original_title,

@@ -55,7 +55,7 @@ const listTitlesByGenre = async (
   });
 }; 
 
-const addMovieToList = async (
+const addTitleToList = async (
   user_id,
   movie_id,
   movie_title,
@@ -64,7 +64,7 @@ const addMovieToList = async (
   release_date = "2011-10-16",
   genre = "Kids",
 ) => {
-  return await fetchMoviesApp("/movies/likeMovie", "POST", {
+  return await fetchMoviesApp("/movies/addLike", "POST", {
     user_id,
     movie_id,
     watched,
@@ -88,7 +88,7 @@ export {
   createUser,
   searchTitle,
   listTitlesByGenre,
-  addMovieToList,
+  addTitleToList,
   getLikedMovies,
   getAllSources,
   searchTitleSources,
