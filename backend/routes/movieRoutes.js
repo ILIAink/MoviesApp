@@ -10,6 +10,7 @@ import {
     getUserServices,
     getRandMovieFromList,
     getRandShowFromList,
+    getTitle
 } from "../controllers/movieController.js";
 
 const router = express.Router();
@@ -24,5 +25,6 @@ router.post("/getMovieLikes", getUserMovieLikes);
 router.post("/getUserServices", getUserServices);
 router.post("/getRandMovieFromList", getRandMovieFromList);
 router.post("/getRandShowFromList", getRandShowFromList);
+router.post("/getTitle", getTitle);
 
 export { router };

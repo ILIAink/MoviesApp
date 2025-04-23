@@ -529,6 +529,24 @@ const getBestBundle = async (user_id) => {
 
 const getShowbyID = async (show_id) => {
   const result = await pool.query("SELECT * FROM Show WHERE Show_id = $1", [show_id]);
+  return result.rows[0];
+}
+
+const getMoviebyID = async (movie_id) => {
+  const result = await pool.query("SELECT * FROM Movie WHERE Movie_id = $1", [movie_id]);
+  return result.rows[0];
+}
+
+const getSourcesForMovie = async (movie_id) => {
+  const result = await pool.query("SELECT service_name as name, rent_price, buy_price, region, web_url FROM Service_Movies NATURAL JOIN Streaming_Services WHERE Movie_id = $1", [movie_id]);
+  return result.rows;
+}
+
+const getSourcesForShow = async (show_id) => {
+  const result = await pool.query(`SELECT service_name as name, rent_price, buy_price, region, web_url, season_count as seasons 
+    FROM Service_Seasons JOIN Streaming_Services on Service_Seasons.service_id = Streaming_Services.service_id
+    JOIN Show on  Service_Seasons.show_id = Show.show_id
+    WHERE Show.Show_id = $1;`, [show_id]);
   return result.rows;
 }
 
@@ -716,7 +734,11 @@ export {
   GetLeavingAlert, 
   GetPriceOfSeason, 
   SelectRandMovieFromGivenList, 
-  SelectRandShowFromGivenList
+  SelectRandShowFromGivenList,
+  getShowbyID,
+  getMoviebyID,
+  getSourcesForMovie,
+  getSourcesForShow,
 };
 
 
