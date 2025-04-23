@@ -114,7 +114,7 @@ const createShow = async (Show_id, Show_name, Season_count, Genre) => {
         [Show_id, i, 0]
       );
     }
-
+ 
     await client.query("COMMIT");
     return result.rows[0];
   } catch (error) {
@@ -527,6 +527,10 @@ const getBestBundle = async (user_id) => {
   return result.rows;
 };
 
+const getShowbyID = async (show_id) => {
+  const result = await pool.query("SELECT * FROM Show WHERE Show_id = $1", [show_id]);
+  return result.rows;
+}
 
 const searchShowByColumn = async (
     Column_name,
