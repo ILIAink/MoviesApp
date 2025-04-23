@@ -55,23 +55,27 @@ const listTitlesByGenre = async (
   });
 }; 
 
-const addMovieToList = async (
+const addTitleToList = async (
   user_id,
-  movie_id,
-  movie_title,
+  title_id,
+  type,
   watched = true,
+  title_name,
+  genre = "Kids",
+  season_count,
   duration = 90,
   release_date = "2011-10-16",
-  genre = "Kids",
 ) => {
-  return await fetchMoviesApp("/movies/likeMovie", "POST", {
+  return await fetchMoviesApp("/movies/addLike", "POST", {
     user_id,
-    movie_id,
+    title_id,
+    type,
     watched,
-    movie_title,
-    duration,
-    release_date,
+    title_name,
     genre,
+    season_count,
+    duration,
+    release_date
   });
 };
 
@@ -88,7 +92,7 @@ export {
   createUser,
   searchTitle,
   listTitlesByGenre,
-  addMovieToList,
+  addTitleToList,
   getLikedMovies,
   getAllSources,
   searchTitleSources,

@@ -3,7 +3,7 @@ import { GlobalContext } from "../GlobalContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import {
-  addMovieToList,
+  addTitleToList,
   searchTitle,
   searchTitleDetails,
   searchTitleSources,
