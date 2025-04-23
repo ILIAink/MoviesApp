@@ -295,7 +295,7 @@ const getTitle = async (req, res) => {
         genre_names: [title.genre],
         runtime_minutes: title.duration,
         release_date: title.release_date,
-        sources: sources,
+        sources: transformedSources,
       });
     } else {
       res.status(200).json({
