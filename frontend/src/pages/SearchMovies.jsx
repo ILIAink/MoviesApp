@@ -44,6 +44,8 @@ const SearchMovies = () => {
   const handleAddToList = async (movie) => {
     try {
       const movieDetails = await searchTitleDetails(movie.id);
+      console.log(await searchTitleDetailsWithSources(movie.id));
+      // console.log(movieDetails);
       await addMovieToList(
         user.user_id,
         movieDetails.id,

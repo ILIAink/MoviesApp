@@ -9,8 +9,6 @@ import {
   createService as addService,
   createShow as addShow,
   createEpisode as addEpisode,
-  Service_Has_Movie as addServiceMovie,
-  Service_Has_Show as addServiceShow,
 } from "../db/queries.js";
 
 const getAllMovies = async (req, res) => {
@@ -23,8 +21,7 @@ const getAllMovies = async (req, res) => {
 };
 
 const createMovie = async (req, res) => {
-  const { movie_id, movie_title, duration, release_date, genre } =
-    req.body;
+  const { movie_id, movie_title, duration, release_date, genre } = req.body;
   try {
     const newMovie = await addMovie(
       movie_id,
@@ -41,30 +38,19 @@ const createMovie = async (req, res) => {
 };
 
 const createShow = async (req, res) => {
-  const { show_id, show_name, season_count, genre } 
-    = req.body;
+  const { show_id, show_name, season_count, genre } = req.body;
   try {
-    const newShow = await addShow(
-      show_id, 
-      show_name, 
-      season_count, 
-      genre
-    );
+    const newShow = await addShow(show_id, show_name, season_count, genre);
 
     res.status(201).json(newShow);
-  } catch (error){
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
 const createEpisode = async (req, res) => {
-  const { 
-    show_id,
-    season_number,
-    episode_number,
-    episode_name,
-    duration,
-  } = req.body;
+  const { show_id, season_number, episode_number, episode_name, duration } =
+    req.body;
   try {
     const newEpisode = await addEpisode(
       show_id,
@@ -83,8 +69,7 @@ const createService = async (req, res) => {
   const {
     service_id, //this is source_id in watchmode
     service_name,
-  }
-  = req.body;
+  } = req.body;
   try {
     const newService = await addService(
       service_id,
@@ -98,7 +83,6 @@ const createService = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 const addMovieToLikes = async (req, res) => {
   const {
@@ -125,13 +109,7 @@ const addMovieToLikes = async (req, res) => {
 
     try {
       // Assume error because movie doesn't exist yet, so add movie first
-      await addMovie(
-        movie_id,
-        movie_title,
-        duration,
-        release_date,
-        genre
-      );
+      await addMovie(movie_id, movie_title, duration, release_date, genre);
 
       // After adding the movie, try adding the like again
       const result = await addLike(user_id, movie_id, watched);
@@ -164,7 +142,7 @@ const getUserServices = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 // jimmy's query uses some a given list to select some random movie
 // i think the list would come from the v/list-titles endpoint filtered by a
@@ -177,7 +155,7 @@ const getRandMovieFromList = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 const getRandShowFromList = async (req, res) => {
   const { list } = req.body;
@@ -187,17 +165,17 @@ const getRandShowFromList = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-export { 
-  getAllMovies, 
-  createMovie, 
+export {
+  getAllMovies,
+  createMovie,
   createShow,
   createEpisode,
   createService,
-  addMovieToLikes, 
-  getUserMovieLikes, 
+  addMovieToLikes,
+  getUserMovieLikes,
   getUserServices,
   getRandMovieFromList,
-  getRandShowFromList
+  getRandShowFromList,
 };
