@@ -34,7 +34,15 @@ const Navbar = () => {
                   }}
                   className="px-3 py-2 rounded-md text-sm font-medium bg-purple-500 text-white hover:bg-purple-600"
                 >
-                  Added Titles
+                  My List
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/randomTitle");
+                  }}
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-purple-500 text-white hover:bg-purple-600"
+                >
+                  Random Title
                 </button>
                 <button
                   onClick={logout}

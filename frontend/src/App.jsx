@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import { GlobalProvider } from "./GlobalContext";
 import SearchMovies from "./pages/SearchMovies";
 import LikedMovies from "./pages/LikedMovies";
+import RandomTitle from "./pages/RandomTitle";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/searchMovies" element={<SearchMovies />} />
           <Route path="/likedMovies" element={<LikedMovies />} />
+          <Route path="/randomTitle" element={<RandomTitle />} />
         </Routes>
         <ToastContainer />
       </div>
