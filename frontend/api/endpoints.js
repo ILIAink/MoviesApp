@@ -90,6 +90,10 @@ const getLikedMovies = async (user_id) => {
   return await fetchMoviesApp("/movies/getmovielikes", "POST", { user_id });
 };
 
+const getLikes = async (user_id) => {
+  return await fetchMoviesApp("/movies/getLikes", "POST", { user_id });
+};
+
 const getAllSources = async () => await fetchWatchMode(`/v1/sources/`);
 
 export {
@@ -101,6 +105,7 @@ export {
   listTitlesByGenre,
   addTitleToList,
   getLikedMovies,
+  getLikes,
   getAllSources,
   searchTitleSources,
   searchTitleDetailsWithSources,

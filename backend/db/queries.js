@@ -350,6 +350,14 @@ const getLikedShow = async (user_id) => {
   return result.rows;
 };
 
+const getLikedMoviesAndShows = async (user_id) => {
+  const result = await pool.query(
+    "SELECT * from likedmoviesandshows where user_id = $1", 
+    [user_id]
+  );
+  return result.rows;
+};
+
 //Get the seasons of a show
 const getShowSeason = async (show_id) => {
   const result = await pool.query("SELECT * FROM Season WHERE show_id = $1", [
@@ -701,6 +709,7 @@ export {
   createMovie,
   getLikedMovies,
   getLikedShow,
+  getLikedMoviesAndShows,
   createShow,
   createSeason,
   createEpisode,

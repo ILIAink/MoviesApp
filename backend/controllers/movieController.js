@@ -4,6 +4,7 @@ import {
   Like_movie as addMovieLike,
   Like_Show as addShowLike,
   getLikedMovies as fetchLikedMovies,
+  getLikedMoviesAndShows as fetchLikedMoviesAndShows,
   getUserServices as fetchUserServices,
   SelectRandMovieFromGivenList as fetchRandomMovie,
   SelectRandShowFromGivenList as fetchRandomShow,
@@ -221,6 +222,16 @@ const getUserMovieLikes = async (req, res) => {
   }
 };
 
+const getUserLikes = async (req, res) => {
+  const { user_id } = req.body;
+  try {
+    const titles = await fetchLikedMoviesAndShows(user_id);
+    res.status(200).json(titles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const getUserServices = async (req, res) => {
   const { user_id } = req.body;
   try {
@@ -318,6 +329,7 @@ export {
   createService,
   addToLikes,
   getUserMovieLikes,
+  getUserLikes,
   getUserServices,
   getRandMovieFromList,
   getRandShowFromList,
