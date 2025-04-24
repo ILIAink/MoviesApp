@@ -47,16 +47,25 @@ const SearchMovies = () => {
 
   const handleAddToList = async (title) => {
     try {
-      // First check if title exists in database
       const exists = await doesTitleExist(title.id, title.type);
 
       let details;
       if (exists.title) {
-        // Use existing data from database
-        details = exists;
-        console.log("Yes");
+        // Transform database data to match API format
+        details = {
+          ...exists,
+          title: exists.movie_title || exists.show_name,
+          name: exists.movie_title || exists.show_name,
+          runtime_minutes: exists.duration,
+          genre_names: [exists.genre],
+          sources: exists.sources.map((source) => ({
+            ...source,
+            source_id: source.service_id,
+            type: source.rent_price > 0 ? "rent" : "buy",
+            price: source.rent_price > 0 ? source.rent_price : source.buy_price,
+          })),
+        };
       } else {
-        // Fetch new data from API
         details = await searchTitleDetailsWithSources(title.id);
       }
 
@@ -65,8 +74,8 @@ const SearchMovies = () => {
         title.id,
         title.type,
         true,
-        details.title || details.name, // handle both database and API response formats
-        details.genre_names?.[0] || details.genre, // handle both formats
+        details.title || details.name,
+        details.genre_names?.[0] || details.genre,
         details?.sources?.[0]?.seasons || details.seasons || 0,
         details.runtime_minutes || details.runtime || 0,
         details.release_date,
@@ -86,8 +95,16 @@ const SearchMovies = () => {
 
       let details;
       if (exists.title) {
-        // Format database data to match expected structure
-        details = exists;
+        // Transform database data to match API format
+        details = {
+          ...exists,
+          sources: exists.sources.map((source) => ({
+            ...source,
+            source_id: source.service_id,
+            type: source.rent_price > 0 ? "rent" : "buy",
+            price: source.rent_price > 0 ? source.rent_price : source.buy_price,
+          })),
+        };
       } else {
         details = await searchTitleDetailsWithSources(title.id);
       }
@@ -261,6 +278,9 @@ const SearchMovies = () => {
                     <option value="GB">United Kingdom</option>
                     <option value="CA">Canada</option>
                     <option value="AU">Australia</option>
+                    <option value="IN">India</option>
+                    <option value="CA">Canada</option>
+                    <option value="ES">Spain</option>
                   </select>
                 </div>
 

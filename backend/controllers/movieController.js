@@ -114,7 +114,6 @@ const addToLikes = async (req, res) => {
   const normalizedType = type.toLowerCase();
 
   try {
-    // Attempt to add the like directly
     console.log("Attempting to add to likes:", {
       user_id,
       title_id,
@@ -129,13 +128,11 @@ const addToLikes = async (req, res) => {
     return res.status(201).json(result);
   } catch (error) {
     if (error.code === "23505") {
-      // Unique constraint violation — already liked
       return res
         .status(400)
         .json({ error: "You have already added this to your list." });
     }
 
-    // Handle case where the title doesn't exist in the database
     try {
       console.log("Adding title:", { title_id, title_name, type });
       const addTitle =
@@ -145,40 +142,25 @@ const addToLikes = async (req, res) => {
 
       await addTitle();
 
-      // for each source, check if in Streaming_Services, if not add.
+      // Process each source
       for (const source of sources) {
-        const { source_id, name, type, price, region, web_url } = source;
-        console.log(
-          "Adding source:",
+        const {
           source_id,
           name,
-          type,
+          type: sourceType,
           price,
           region,
-          web_url
-        );
+          web_url,
+        } = source;
+
         try {
+          // Check if service exists
           const service = await getService(source_id);
           if (!service) {
-            // If the service doesn't exist, create it
-            const addedService = await addService(source_id, name, 0, 0);
-            console.log("Added service:", addedService);
+            await addService(source_id, name, 0, 0);
           }
-        } catch (serviceError) {
-          console.error("Error adding service:", serviceError);
-          return res
-            .status(500)
-            .json({ error: "An unexpected error occurred. Please try again." });
-        }
 
-        // add to service_movies or service_seasons
-
-        try {
-          const isRent = type === "rent";
-          let rent_price = isRent ? price : 0;
-          let buy_price = isRent ? 0 : price;
-
-          // First check if the relationship already exists
+          // Get existing sources to avoid duplicates
           const existingSources =
             normalizedType === "movie"
               ? await getSourcesForMovie(title_id)
@@ -190,30 +172,39 @@ const addToLikes = async (req, res) => {
           );
 
           if (!sourceExists) {
-            const addTitleToService =
-              normalizedType === "movie"
-                ? await addMovieToService(
-                    source_id,
-                    title_id,
-                    region,
-                    rent_price,
-                    buy_price,
-                    web_url
-                  )
-                : await addShowToService(
-                    source_id,
-                    title_id,
-                    region,
-                    rent_price,
-                    buy_price,
-                    web_url
-                  );
-            console.log("Added title to service:", addTitleToService);
-          } else {
-            console.log("Source-title relationship already exists, skipping");
+            // Set rent_price and buy_price based on source type
+            let rent_price = 0;
+            let buy_price = 0;
+
+            if (sourceType === "rent") {
+              rent_price = parseFloat(price) || 0;
+            } else if (sourceType === "buy") {
+              buy_price = parseFloat(price) || 0;
+            }
+
+            // Add source to title
+            if (normalizedType === "movie") {
+              await addMovieToService(
+                source_id,
+                title_id,
+                region,
+                rent_price,
+                buy_price,
+                web_url
+              );
+            } else {
+              await addShowToService(
+                source_id,
+                title_id,
+                region,
+                rent_price,
+                buy_price,
+                web_url
+              );
+            }
           }
         } catch (serviceError) {
-          console.error("Error adding service to title", serviceError);
+          console.error("Error processing source:", serviceError);
         }
       }
 

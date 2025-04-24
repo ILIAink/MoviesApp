@@ -51,6 +51,7 @@ const LikedMovies = () => {
       let details;
       if (exists.title) {
         details = exists;
+        console.log(details);
       } else {
         details = await searchTitleDetailsWithSources(title.content_id);
       }
@@ -230,6 +231,9 @@ const LikedMovies = () => {
                     <option value="GB">United Kingdom</option>
                     <option value="CA">Canada</option>
                     <option value="AU">Australia</option>
+                    <option value="IN">India</option>
+                    <option value="CA">Canada</option>
+                    <option value="ES">Spain</option>
                   </select>
                 </div>
 
