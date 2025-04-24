@@ -291,7 +291,7 @@ const SearchMovies = () => {
                   <div className="text-gray-400">Runtime</div>
                   <div className="text-white">
                     {titleDetails.runtime_minutes
-                      ? `titleDetails.runtime_minutes minutes`
+                      ? `${titleDetails.runtime_minutes} minutes`
                       : "N/A"}
                   </div>
                   <div className="text-gray-400">Genres</div>
