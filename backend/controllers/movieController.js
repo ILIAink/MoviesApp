@@ -290,26 +290,51 @@ const getTitle = async (req, res) => {
       normalizedType === "movie"
         ? await getMovie(title_id)
         : await getShow(title_id);
+
     // Check if no title was found
     if (!title) {
       return res.status(200).json({ title: null });
     }
+
     const sources =
       normalizedType === "movie"
         ? await getSourcesForMovie(title_id)
         : await getSourcesForShow(title_id);
 
     const transformedSources = sources.map((source) => {
-      const isRent = source.rent_price !== 0;
-      return {
+      // Create a copy of the source object
+      const transformedSource = {
         name: source.name,
-        type: isRent ? "rent" : "buy",
-        price: isRent ? source.rent_price : source.buy_price,
         region: source.region,
         web_url: source.web_url,
-        ...(normalizedType !== "movie" && { seasons: source.seasons }),
       };
+
+      // Determine type and price based on rent_price and buy_price
+      if (source.rent_price > 0) {
+        transformedSource.type = "rent";
+        transformedSource.price = source.rent_price.toString();
+      } else if (source.buy_price > 0) {
+        transformedSource.type = "buy";
+        transformedSource.price = source.buy_price.toString();
+      } else {
+        // If both prices are 0, check if it's a subscription service
+        transformedSource.type = "subscription";
+        transformedSource.price = "0.00";
+      }
+
+      // Add seasons information for shows
+      if (normalizedType !== "movie" && source.seasons) {
+        transformedSource.seasons = source.seasons;
+      }
+
+      return transformedSource;
     });
+
+    // Filter out sources with 0 prices unless they are subscription services
+    const filteredSources = transformedSources.filter(
+      (source) => source.type === "subscription" || parseFloat(source.price) > 0
+    );
+
     if (normalizedType === "movie") {
       res.status(200).json({
         type: normalizedType,
@@ -317,17 +342,18 @@ const getTitle = async (req, res) => {
         genre_names: [title.genre],
         runtime_minutes: title.duration,
         release_date: title.release_date,
-        sources: transformedSources,
+        sources: filteredSources,
       });
     } else {
       res.status(200).json({
         type: normalizedType,
         title: title.show_name,
         genre_names: [title.genre],
-        sources: transformedSources,
+        sources: filteredSources,
       });
     }
   } catch (error) {
+    console.error("Error in getTitle:", error);
     res.status(500).json({ error: error.message });
   }
 };
