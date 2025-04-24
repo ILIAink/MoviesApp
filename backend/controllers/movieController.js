@@ -160,29 +160,18 @@ const addToLikes = async (req, res) => {
             await addService(source_id, name, 0, 0);
           }
 
-          // Get existing sources to avoid duplicates
-          const existingSources =
-            normalizedType === "movie"
-              ? await getSourcesForMovie(title_id)
-              : await getSourcesForShow(title_id);
+          // Set rent_price and buy_price based on source type
+          let rent_price = 0;
+          let buy_price = 0;
 
-          const sourceExists = existingSources.some(
-            (existing) =>
-              existing.service_id === source_id && existing.region === region
-          );
+          if (sourceType === "rent") {
+            rent_price = parseFloat(price) || 0;
+          } else if (sourceType === "buy") {
+            buy_price = parseFloat(price) || 0;
+          }
 
-          if (!sourceExists) {
-            // Set rent_price and buy_price based on source type
-            let rent_price = 0;
-            let buy_price = 0;
-
-            if (sourceType === "rent") {
-              rent_price = parseFloat(price) || 0;
-            } else if (sourceType === "buy") {
-              buy_price = parseFloat(price) || 0;
-            }
-
-            // Add source to title
+          // Try to add the source, ignore if it already exists
+          try {
             if (normalizedType === "movie") {
               await addMovieToService(
                 source_id,
@@ -202,9 +191,18 @@ const addToLikes = async (req, res) => {
                 web_url
               );
             }
+          } catch (duplicateError) {
+            // If error is due to duplicate entry, just continue
+            if (duplicateError.code === "23505") {
+              continue;
+            }
+            // If it's a different error, throw it
+            throw duplicateError;
           }
         } catch (serviceError) {
           console.error("Error processing source:", serviceError);
+          // Continue with next source instead of breaking the whole process
+          continue;
         }
       }
 
