@@ -82,7 +82,16 @@ const SearchMovies = () => {
   const handleShowDetails = async (title) => {
     try {
       setIsLoading(true);
-      const details = await searchTitleDetailsWithSources(title.id);
+      const exists = await doesTitleExist(title.id, title.type);
+
+      let details;
+      if (exists.title) {
+        // Format database data to match expected structure
+        details = exists;
+      } else {
+        details = await searchTitleDetailsWithSources(title.id);
+      }
+
       setSelectedTitle(title);
       setTitleDetails(details);
     } catch (error) {
@@ -93,13 +102,20 @@ const SearchMovies = () => {
   };
 
   const filterSources = (sources) => {
-    return sources?.filter((source) => {
+    if (!sources) return [];
+
+    return sources.filter((source) => {
+      // Check if source has all required properties
+      if (!source || !source.region || !source.type) return false;
+
+      const priceMatch = source.price > 0;
       const regionMatch = source.region === selectedRegion;
       const typeMatch =
         selectedType === "all"
-          ? source.type === "rent" || source.type === "buy"
-          : source.type === selectedType;
-      return regionMatch && typeMatch;
+          ? true // Show all types when "all" is selected
+          : source.type.toLowerCase() === selectedType.toLowerCase();
+
+      return regionMatch && typeMatch && priceMatch;
     });
   };
 
@@ -276,7 +292,9 @@ const SearchMovies = () => {
                   </div>
                   <div className="text-gray-400">Genres</div>
                   <div className="text-white">
-                    {titleDetails.genre_names.join(", ")}
+                    {(titleDetails.genre_names || []).join(", ") ||
+                      titleDetails.genre ||
+                      "No genres available"}
                   </div>
                 </div>
 
@@ -286,35 +304,38 @@ const SearchMovies = () => {
                     Available on:
                   </h3>
                   <div className="space-y-3">
-                    {filterSources(titleDetails.sources)?.length > 0 ? (
-                      filterSources(titleDetails.sources)?.map((source) => (
-                        <div
-                          key={source.source_id}
-                          className="flex items-center justify-between bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition-colors"
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-white font-medium">
-                              {source.name}
-                            </span>
-                            <span className="text-gray-400 text-sm capitalize">
-                              {source.type}
-                            </span>
+                    {titleDetails?.sources &&
+                    filterSources(titleDetails.sources)?.length > 0 ? (
+                      filterSources(titleDetails.sources).map(
+                        (source, index) => (
+                          <div
+                            key={`${source.name}-${source.type}-${index}`}
+                            className="flex items-center justify-between bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition-colors"
+                          >
+                            <div className="flex flex-col">
+                              <span className="text-white font-medium">
+                                {source.name}
+                              </span>
+                              <span className="text-gray-400 text-sm capitalize">
+                                {source.type}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <span className="text-green-400 font-medium">
+                                ${Number(source.price).toFixed(2)}
+                              </span>
+                              <a
+                                href={source.web_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200 font-medium"
+                              >
+                                Watch
+                              </a>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-4">
-                            <span className="text-green-400 font-medium">
-                              ${source.price.toFixed(2)}
-                            </span>
-                            <a
-                              href={source.web_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200 font-medium"
-                            >
-                              Watch
-                            </a>
-                          </div>
-                        </div>
-                      ))
+                        )
+                      )
                     ) : (
                       <div className="text-gray-400 text-center py-8">
                         No streaming options available for the selected filters
