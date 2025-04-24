@@ -53,6 +53,16 @@ const listTitlesByGenre = async (genre) => {
   });
 };
 
+const listTitlesBySourceOrRegion = async (
+  source_id = undefined, //optional
+  region = undefined //optional 
+) => {
+  return await fetchWatchMode(`/list-titles/`, {
+    ...(source_id && { source_ids: source_id }),
+    ...(region && { regions: region }),
+  });
+}
+
 const doesTitleExist = async (title_id, type) => {
   return await fetchMoviesApp("/movies/getTitle", "POST", {
     title_id,
@@ -103,6 +113,7 @@ export {
   createUser,
   searchTitle,
   listTitlesByGenre,
+  listTitlesBySourceOrRegion,
   addTitleToList,
   getLikedMovies,
   getLikes,
