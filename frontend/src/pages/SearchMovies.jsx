@@ -47,28 +47,30 @@ const SearchMovies = () => {
 
   const handleAddToList = async (title) => {
     try {
-      const details = await searchTitleDetailsWithSources(title.id);
-      // console.log(details);
+      // First check if title exists in database
       const exists = await doesTitleExist(title.id, title.type);
-      if (!exists.title) {
-        console.log("doesn't exist");
-        return;
+
+      let details;
+      if (exists.title) {
+        // Use existing data from database
+        details = exists;
+        console.log("Yes");
       } else {
-        console.log("exists");
-        console.log(exists);
-        return;
+        // Fetch new data from API
+        details = await searchTitleDetailsWithSources(title.id);
       }
+
       await addTitleToList(
         user.user_id,
-        details.id,
-        details.type,
+        title.id,
+        title.type,
         true,
-        details.title,
-        details.genre_names[0],
-        details?.sources[0]?.seasons || 0,
-        details.runtime_minutes || 0,
+        details.title || details.name, // handle both database and API response formats
+        details.genre_names?.[0] || details.genre, // handle both formats
+        details?.sources?.[0]?.seasons || details.seasons || 0,
+        details.runtime_minutes || details.runtime || 0,
         details.release_date,
-        details?.sources || []
+        details.sources || []
       );
       toast.success("Title added to liked list!");
     } catch (error) {
