@@ -25,7 +25,7 @@ const Home = () => {
           {user ? (
             <div className="flex flex-col items-center space-y-6">
               <p className="text-lg text-purple-300">
-                Welcome back, {user.username}!
+                Welcome back, {user.user_name}!
               </p>
               <div className="flex gap-4">
                 <button
