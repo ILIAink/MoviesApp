@@ -257,11 +257,15 @@ const LikedMovies = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm bg-gray-700 p-4 rounded-lg">
                   <div className="text-gray-400">Release Date</div>
                   <div className="text-white">
-                    {new Date(titleDetails.release_date).toLocaleDateString()}
+                    {titleDetails.release_date
+                      ? new Date(titleDetails.release_date).toLocaleDateString()
+                      : "N/A"}
                   </div>
                   <div className="text-gray-400">Runtime</div>
                   <div className="text-white">
-                    {titleDetails.runtime_minutes} minutes
+                    {titleDetails.runtime_minutes
+                      ? `titleDetails.runtime_minutes minutes`
+                      : "N/A"}
                   </div>
                   <div className="text-gray-400">Genres</div>
                   <div className="text-white">

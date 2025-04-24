@@ -52,19 +52,8 @@ const SearchMovies = () => {
       let details;
       if (exists.title) {
         // Transform database data to match API format
-        details = {
-          ...exists,
-          title: exists.movie_title || exists.show_name,
-          name: exists.movie_title || exists.show_name,
-          runtime_minutes: exists.duration,
-          genre_names: [exists.genre],
-          sources: exists.sources.map((source) => ({
-            ...source,
-            source_id: source.service_id,
-            type: source.rent_price > 0 ? "rent" : "buy",
-            price: source.rent_price > 0 ? source.rent_price : source.buy_price,
-          })),
-        };
+        details = exists;
+        console.log(details);
       } else {
         details = await searchTitleDetailsWithSources(title.id);
       }
@@ -75,9 +64,9 @@ const SearchMovies = () => {
         title.type,
         true,
         details.title || details.name,
-        details.genre_names?.[0] || details.genre,
-        details?.sources?.[0]?.seasons || details.seasons || 0,
-        details.runtime_minutes || details.runtime || 0,
+        details.genre_names?.[0],
+        details?.sources?.[0]?.seasons,
+        details.runtime_minutes || 0,
         details.release_date,
         details.sources || []
       );
@@ -96,15 +85,7 @@ const SearchMovies = () => {
       let details;
       if (exists.title) {
         // Transform database data to match API format
-        details = {
-          ...exists,
-          sources: exists.sources.map((source) => ({
-            ...source,
-            source_id: source.service_id,
-            type: source.rent_price > 0 ? "rent" : "buy",
-            price: source.rent_price > 0 ? source.rent_price : source.buy_price,
-          })),
-        };
+        details = exists;
       } else {
         details = await searchTitleDetailsWithSources(title.id);
       }
@@ -304,11 +285,14 @@ const SearchMovies = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm bg-gray-700 p-4 rounded-lg">
                   <div className="text-gray-400">Release Date</div>
                   <div className="text-white">
-                    {new Date(titleDetails.release_date).toLocaleDateString()}
+                    {new Date(titleDetails.release_date).toLocaleDateString() ||
+                      "N/A"}
                   </div>
                   <div className="text-gray-400">Runtime</div>
                   <div className="text-white">
-                    {titleDetails.runtime_minutes} minutes
+                    {titleDetails.runtime_minutes
+                      ? `titleDetails.runtime_minutes minutes`
+                      : "N/A"}
                   </div>
                   <div className="text-gray-400">Genres</div>
                   <div className="text-white">
