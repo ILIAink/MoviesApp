@@ -278,7 +278,7 @@ const getTitle = async (req, res) => {
         : await getSourcesForShow(title_id);
 
     const transformedSources = sources.map(source => {
-      const isRent = source.buy_price === null;
+      const isRent = source.rent_price !== 0;
       return {
         name: source.name,
         type: isRent ? "rent" : "buy",
