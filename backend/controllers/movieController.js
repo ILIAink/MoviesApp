@@ -115,7 +115,12 @@ const addToLikes = async (req, res) => {
 
   try {
     // Attempt to add the like directly
-    console.log("Attempting to add to likes:", { user_id, title_id, type, watched });
+    console.log("Attempting to add to likes:", {
+      user_id,
+      title_id,
+      type,
+      watched,
+    });
     const result =
       normalizedType === "movie"
         ? await addMovieLike(user_id, title_id, watched)
@@ -132,7 +137,7 @@ const addToLikes = async (req, res) => {
 
     // Handle case where the title doesn't exist in the database
     try {
-      console.log("Adding title:", {  title_id, title_name, type });
+      console.log("Adding title:", { title_id, title_name, type });
       const addTitle =
         normalizedType === "movie"
           ? () => addMovie(title_id, title_name, duration, release_date, genre)
@@ -173,25 +178,40 @@ const addToLikes = async (req, res) => {
           let rent_price = isRent ? price : 0;
           let buy_price = isRent ? 0 : price;
 
-          const addTitleToService =
+          // First check if the relationship already exists
+          const existingSources =
             normalizedType === "movie"
-              ? await addMovieToService(
-                  source_id,
-                  title_id,
-                  region,
-                  rent_price,
-                  buy_price,
-                  web_url
-                )
-              : await addShowToService(
-                  source_id,
-                  title_id,
-                  region,
-                  rent_price,
-                  buy_price,
-                  web_url
-                );
-          console.log("Added title to service:", addTitleToService);
+              ? await getSourcesForMovie(title_id)
+              : await getSourcesForShow(title_id);
+
+          const sourceExists = existingSources.some(
+            (existing) =>
+              existing.service_id === source_id && existing.region === region
+          );
+
+          if (!sourceExists) {
+            const addTitleToService =
+              normalizedType === "movie"
+                ? await addMovieToService(
+                    source_id,
+                    title_id,
+                    region,
+                    rent_price,
+                    buy_price,
+                    web_url
+                  )
+                : await addShowToService(
+                    source_id,
+                    title_id,
+                    region,
+                    rent_price,
+                    buy_price,
+                    web_url
+                  );
+            console.log("Added title to service:", addTitleToService);
+          } else {
+            console.log("Source-title relationship already exists, skipping");
+          }
         } catch (serviceError) {
           console.error("Error adding service to title", serviceError);
         }
@@ -288,7 +308,7 @@ const getTitle = async (req, res) => {
         ? await getSourcesForMovie(title_id)
         : await getSourcesForShow(title_id);
 
-    const transformedSources = sources.map(source => {
+    const transformedSources = sources.map((source) => {
       const isRent = source.rent_price !== 0;
       return {
         name: source.name,
