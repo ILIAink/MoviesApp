@@ -160,12 +160,27 @@ const SearchMovies = () => {
             >
               <div className="relative h-64">
                 {title.image_url ? (
-                  <img
-                    src={title.image_url}
-                    alt={title.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  <>
+                    {/* Blurred background behind the image */}
+                    <div
+                      className="absolute inset-0 z-0"
+                      style={{
+                        backgroundImage: `url(${title.image_url})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        filter: "blur(20px)",
+                        transform: "scale(1.1)",
+                      }}
+                    />
+
+                    {/* Foreground image */}
+                    <img
+                      src={title.image_url}
+                      alt={title.name}
+                      className="absolute inset-0 h-full w-full object-contain z-10"
+                      loading="lazy"
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-full bg-gray-700 flex items-center justify-center">
                     <span className="text-gray-400">No image available</span>
@@ -291,7 +306,7 @@ const SearchMovies = () => {
                   <div className="text-gray-400">Runtime</div>
                   <div className="text-white">
                     {titleDetails.runtime_minutes
-                      ? `titleDetails.runtime_minutes minutes`
+                      ? `${titleDetails.runtime_minutes} minutes`
                       : "N/A"}
                   </div>
                   <div className="text-gray-400">Genres</div>
